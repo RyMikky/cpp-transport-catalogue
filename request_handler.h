@@ -5,7 +5,7 @@
 #include "map_renderer.h"                              // модуль визуализации
 #include "domain.h"                                    // модуль основных структур
 
-//#include "simple_reader.h"                           // модуль объединивший input и stat reader
+#include "simple_reader.h"                             // модуль объединивший input и stat reader
 #include "json_reader.h"                               // модуль ввода/вывода KSON
 
 using namespace std::literals;
@@ -39,91 +39,91 @@ namespace transport_catalogue {
 			virtual void RequestProcessor() = 0;                                 // точка входа, обрабатывается из конструктора
 		};
 
-		//// класс-наследник от базового RequestHandler
-		//// работает в режиме терминала принимая простые запросы из командной строки
-		//class RequestHandlerSimpleTerminal : protected RequestHandler {
-		//public:
-		//	RequestHandlerSimpleTerminal() = default;
-		//	RequestHandlerSimpleTerminal(transport_catalogue::TransportCatalogue&, std::istream&, std::ostream&);
+		// класс-наследник от базового RequestHandler
+		// работает в режиме терминала принимая простые запросы из командной строки
+		class RequestHandlerTerminal : protected RequestHandler {
+		public:
+			RequestHandlerTerminal() = default;
+			RequestHandlerTerminal(transport_catalogue::TransportCatalogue&, std::istream&, std::ostream&);
 
-		//	SimpleRequestPtr AddSimpleRequest(std::string);
+			SimpleRequestPtr AddSimpleRequest(std::string);
 
-		//	// добавляет запрос в дек текущих задач после парсинга
-		//	void AddInProcessLine(SimpleRequestPtr request) {
-		//		_current_simple_requests[request->_type].push_back(request);
-		//	}
+			// добавляет запрос в дек текущих задач после парсинга
+			void AddInProcessLine(SimpleRequestPtr request) {
+				_current_simple_requests[request->_type].push_back(request);
+			}
 
-		//	void AddSimpleRequest(SimpleRequest&&);                               // добавляет запрос из готовой структуры
-		//	Route MakeRoute(SimpleRequestPtr);                                    // создаёт маршрут на основе запроса
+			void AddSimpleRequest(SimpleRequest&&);                               // добавляет запрос из готовой структуры
+			Route MakeRoute(SimpleRequestPtr);                                    // создаёт маршрут на основе запроса
 
-		//	// создаёт остановку на основе запроса
-		//	Stop MakeStop(SimpleRequestPtr request) {
-		//		return { std::string(request->_key_name), request->_coord.lat, request->_coord.lng };
-		//	}
+			// создаёт остановку на основе запроса
+			Stop MakeStop(SimpleRequestPtr request) {
+				return { std::string(request->_key_name), request->_coord.lat, request->_coord.lng };
+			}
 
-		//	void AddDistanceProcess(SimpleRequestPtr);                            // выполнение запросов на добавление дистанций по запросу
-		//	void AddDistanceProcess() override;                                   // выполнение запросов на добавление дистанций из массива
-		//	void AddStopProcess() override;                                       // выполнение запросов на добавление остановки
-		//	void AddRouteProcess() override;                                      // выполнение запросов на добавление маршрута
-		//	void StopInfoProcess() override;                                      // выполнение запросов на получение информации по остановке
-		//	void RouteInfoProcess() override;                                     // выполнение запросов на получение информации по маршруту
-		//	void StatInfoProcess() override;                                      // выполнение запросов на получение информации в общем случае
-		//	void RequestsProcess() override;                                      // обработчик текущей очереди запросов
+			void AddDistanceProcess(SimpleRequestPtr);                            // выполнение запросов на добавление дистанций по запросу
+			void AddDistanceProcess() override;                                   // выполнение запросов на добавление дистанций из массива
+			void AddStopProcess() override;                                       // выполнение запросов на добавление остановки
+			void AddRouteProcess() override;                                      // выполнение запросов на добавление маршрута
+			void StopInfoProcess() override;                                      // выполнение запросов на получение информации по остановке
+			void RouteInfoProcess() override;                                     // выполнение запросов на получение информации по маршруту
+			void StatInfoProcess() override;                                      // выполнение запросов на получение информации в общем случае
+			void RequestsProcess() override;                                      // обработчик текущей очереди запросов
 
-		//private:
+		private:
 
-		//	void RequestProcessor() override;                                     // точка входа, обрабатывается из конструктора
+			void RequestProcessor() override;                                     // точка входа, обрабатывается из конструктора
 
-		//	// история поступивших запросов простого типа
-		//	std::deque<SimpleRequest> _simple_requests_history = {};
-		//	// мап текущих к обработке запросов простого типа
-		//	std::map<RequestType, std::deque<SimpleRequestPtr>> _current_simple_requests = {};
-		//	// временное хранилище для sub-запросов на добавление дистанции
-		//	std::map<std::string_view, std::map<std::string_view, int64_t>*> _current_distance_simple_requests = {};
-		//};
+			// история поступивших запросов простого типа
+			std::deque<SimpleRequest> _simple_requests_history = {};
+			// мап текущих к обработке запросов простого типа
+			std::map<RequestType, std::deque<SimpleRequestPtr>> _current_simple_requests = {};
+			// временное хранилище для sub-запросов на добавление дистанции
+			std::map<std::string_view, std::map<std::string_view, int64_t>*> _current_distance_simple_requests = {};
+		};
 
-		//// класс-наследник от базового RequestHandler
-		//// работает в режиме обработки бока простых запросов переданых в форме строки
-		//class RequestHandlerSimple : protected RequestHandler {
-		//public:
-		//	RequestHandlerSimple() = default;
-		//	RequestHandlerSimple(transport_catalogue::TransportCatalogue&, std::istream&, std::ostream&);
+		// класс-наследник от базового RequestHandler
+		// работает в режиме обработки бока простых запросов переданых в форме строки
+		class RequestHandlerSimple : protected RequestHandler {
+		public:
+			RequestHandlerSimple() = default;
+			RequestHandlerSimple(transport_catalogue::TransportCatalogue&, std::istream&, std::ostream&);
 
-		//	SimpleRequestPtr AddSimpleRequest(std::string);
+			SimpleRequestPtr AddSimpleRequest(std::string);
 
-		//	// добавляет запрос в дек текущих задач после парсинга
-		//	void AddInProcessLine(SimpleRequestPtr request) {
-		//		_current_simple_requests[request->_type].push_back(request);
-		//	}
+			// добавляет запрос в дек текущих задач после парсинга
+			void AddInProcessLine(SimpleRequestPtr request) {
+				_current_simple_requests[request->_type].push_back(request);
+			}
 
-		//	void AddSimpleRequest(SimpleRequest&&);                               // добавляет запрос из готовой структуры
-		//	Route MakeRoute(SimpleRequestPtr);                                    // создаёт маршрут на основе запроса
+			void AddSimpleRequest(SimpleRequest&&);                               // добавляет запрос из готовой структуры
+			Route MakeRoute(SimpleRequestPtr);                                    // создаёт маршрут на основе запроса
 
-		//	// создаёт остановку на основе запроса
-		//	Stop MakeStop(SimpleRequestPtr request) {
-		//		return { std::string(request->_key_name), request->_coord.lat, request->_coord.lng };
-		//	}
+			// создаёт остановку на основе запроса
+			Stop MakeStop(SimpleRequestPtr request) {
+				return { std::string(request->_key_name), request->_coord.lat, request->_coord.lng };
+			}
 
-		//	void AddDistanceProcess(SimpleRequestPtr);                            // выполнение запросов на добавление дистанций по запросу
-		//	void AddDistanceProcess() override;                                   // выполнение запросов на добавление дистанций из массива
-		//	void AddStopProcess() override;                                       // выполнение запросов на добавление остановки
-		//	void AddRouteProcess() override;                                      // выполнение запросов на добавление маршрута
-		//	void StopInfoProcess() override;                                      // выполнение запросов на получение информации по остановке
-		//	void RouteInfoProcess() override;                                     // выполнение запросов на получение информации по маршруту
-		//	void StatInfoProcess() override;                                      // выполнение запросов на получение информации в общем случае
-		//	void RequestsProcess() override;                                      // обработчик текущей очереди запросов
+			void AddDistanceProcess(SimpleRequestPtr);                            // выполнение запросов на добавление дистанций по запросу
+			void AddDistanceProcess() override;                                   // выполнение запросов на добавление дистанций из массива
+			void AddStopProcess() override;                                       // выполнение запросов на добавление остановки
+			void AddRouteProcess() override;                                      // выполнение запросов на добавление маршрута
+			void StopInfoProcess() override;                                      // выполнение запросов на получение информации по остановке
+			void RouteInfoProcess() override;                                     // выполнение запросов на получение информации по маршруту
+			void StatInfoProcess() override;                                      // выполнение запросов на получение информации в общем случае
+			void RequestsProcess() override;                                      // обработчик текущей очереди запросов
 
-		//private:
+		private:
 
-		//	void RequestProcessor() override;                                     // точка входа, обрабатывается из конструктора
+			void RequestProcessor() override;                                     // точка входа, обрабатывается из конструктора
 
-		//	// история поступивших запросов простого типа
-		//	std::deque<SimpleRequest> _simple_requests_history = {};
-		//	// мап текущих к обработке запросов простого типа
-		//	std::map<RequestType, std::deque<SimpleRequestPtr>> _current_simple_requests = {};
-		//	// временное хранилище для sub-запросов на добавление дистанции
-		//	std::map<std::string_view, std::map<std::string_view, int64_t>*> _current_distance_simple_requests = {};
-		//};
+			// история поступивших запросов простого типа
+			std::deque<SimpleRequest> _simple_requests_history = {};
+			// мап текущих к обработке запросов простого типа
+			std::map<RequestType, std::deque<SimpleRequestPtr>> _current_simple_requests = {};
+			// временное хранилище для sub-запросов на добавление дистанции
+			std::map<std::string_view, std::map<std::string_view, int64_t>*> _current_distance_simple_requests = {};
+		};
 
 		// класс-наследник от базового RequestHandler
 		// работает в режиме обработки JSON-блоков
@@ -138,9 +138,8 @@ namespace transport_catalogue {
 			Route MakeRoute(JsonRequestPtr);                                      // создаёт маршрут на основе запроса
 			Stop MakeStop(JsonRequestPtr request);                                // создаёт остановку на основе запроса
 
-			void RenderSetupProcess(json::Dict);                                  // назначение настроек рендера
-			//void RenderProcess();                                                 // отправка данных в рендер, запуск рендера, базовый вариант
-			void RenderProcess(map_renderer::MapRenderer&);                       // запуск рендера по запросу из JSON
+			void RendererSetupProcess(json::Dict);                                // назначение настроек рендера
+			void RendererProcess(map_renderer::MapRenderer&);                     // запуск рендера по запросу из JSON
 
 			void AddDistanceProcess(JsonRequestPtr);                              // выполнение запросов на добавление дистанций по запросу
 			void AddDistanceProcess() override;                                   // выполнение запросов на добавление дистанций из массива
@@ -155,8 +154,7 @@ namespace transport_catalogue {
 
 			void RequestProcessor() override;                                     // точка входа, вызывается из конструктора
 
-			map_renderer::RendererSettings _render_settings;
-			//map_renderer::MapRenderer _render;                                  // базовый независимый рендер выдающий XML в основной поток вывода	
+			map_renderer::RendererSettings _renderer_settings;                    // блок настроек рендера
 			std::deque<JsonRequest> _json_requests_history;                       // история поступивших запросов JSON-формата
 			std::deque<json::Dict> _json_dicts;                                   // история полученных JSON-блоков
 			// мап текущих к обработке запросов JSON-формата

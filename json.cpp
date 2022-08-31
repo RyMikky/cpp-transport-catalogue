@@ -342,8 +342,8 @@ namespace json {
         return std::get<Array>(*this);
     }
 
-    const Dict& Node::AsMap() const {
-        if (!IsMap()) {
+    const Dict& Node::AsDict() const {
+        if (!IsDict()) {
             throw std::logic_error("This not a Dict");
         }
         return std::get<Dict>(*this);
@@ -379,7 +379,7 @@ namespace json {
         return std::holds_alternative<Array>(*this);
     }
 
-    bool Node::IsMap() const {
+    bool Node::IsDict() const {
         return std::holds_alternative<Dict>(*this);
     }
 
@@ -471,46 +471,62 @@ namespace json {
     void PrintValue(const Array& array, const PrintContext& ctx) {
         auto& out = ctx._out;
         bool IsFirst = true;
-        out.put('[');
-        out.put(' ');
+        //out.put('[');
+        //out.put(' ');
+        out << "[\n"sv;
+        auto inner_ctx = ctx.Indented();
         for (auto& item : array) {
             if (!IsFirst) {
-                out.put(',');
-                out.put(' ');
+                //out.put(',');
+                //out.put(' ');
+                out << ",\n"sv;
             }
             else {
                 IsFirst = false;
             }
+            inner_ctx.PrintIndent();
             std::visit(
-                [&out, &item](const auto& value) {
-                    PrintValue(value, PrintContext(out, 0, 0)); },
+                [&out, &item, &inner_ctx](const auto& value) {
+                    PrintValue(value, inner_ctx); },
                 item.GetValue());
         }
-        out.put(' ');
+        //out.put(' ');
+        //out.put(']');
+
+        out.put('\n');
+        ctx.PrintIndent();
         out.put(']');
     }
 
     void PrintValue(const Dict& dict, const PrintContext& ctx) {
         auto& out = ctx._out;
         bool IsFirst = true;
-        out.put('{');
-        out.put(' ');
+        //out.put('{');
+        //out.put(' ');
+        out << "{\n"sv;
+        auto inner_ctx = ctx.Indented();
         for (auto& item : dict) {
             if (!IsFirst) {
-                out.put(',');
-                out.put(' ');
+                //out.put(',');
+                //out.put(' ');
+                out << ",\n"sv;
             }
             else {
                 IsFirst = false;
             }
-            PrintValue(item.first, PrintContext(out, 0, 0));
+            inner_ctx.PrintIndent();
+            PrintValue(item.first, inner_ctx/*PrintContext(out, 4, 0)*/);
             out << " : "sv;
             std::visit(
-                [&out, &item](const auto& value) {
-                    PrintValue(value, PrintContext(out, 0, 0)); },
+                [&out, &item, &inner_ctx](const auto& value) {
+                    PrintValue(value, inner_ctx); },
                 item.second.GetValue());
         }
-        out.put(' ');
+        //out.put(' ');
+        //out.put('}');
+
+        out.put('\n');
+        ctx.PrintIndent();
         out.put('}');
     }
 
@@ -588,7 +604,7 @@ namespace json {
             else {
                 IsFirst = false;
             }
-            PrintValue(item.first, PrintContext(out, 0, 0));
+            PrintValue(item.first, PrintContext(out, 4, 0));
             out << " : "sv;
             auto val = item.second.GetValue();
             std::visit(ValuePrinter{ out }, val);

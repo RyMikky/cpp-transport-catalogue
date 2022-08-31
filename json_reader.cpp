@@ -96,7 +96,7 @@ namespace json_reader {
         }
 
         if (node.count("road_distances") != 0) {
-            auto distances_ = node.at("road_distances").AsMap();
+            auto distances_ = node.at("road_distances").AsDict();
             for (auto& item : distances_) {
                 request->_distances[item.first] = static_cast<int64_t>(item.second.AsInt());
             }
@@ -166,41 +166,79 @@ namespace json_reader {
     // получение результата по маршрутам
     json::Document JSONPrinter::RouteReportNodeMaker(size_t id, transport_catalogue::RouteStatPtr route_stat) {
         if (route_stat == nullptr) {
-            return json::Document(json::Dict{ { "request_id", static_cast<int>(id)}, {"error_message", "not found"} });
+            /*return json::Document(json::Dict{ { "request_id", static_cast<int>(id)}, {"error_message", "not found"} });*/
+            return json::Document(
+                json::Builder()
+                .StartDict()
+                .Key("request_id").Value(static_cast<int>(id))
+                .Key("error_message").Value("not found")
+                .EndDict()
+                .Build());
         }
         else {
-            return json::Document(json::Dict{ 
+            /*return json::Document(json::Dict{ 
                 {"request_id", static_cast<int>(id)}, 
                 {"curvature", route_stat->_curvature},
                 {"route_length", static_cast<int>(route_stat->_real_route_length)},
                 {"stop_count", static_cast<int>(route_stat->_stops_on_route)},
                 {"unique_stop_count", static_cast<int>(route_stat->_unique_stops)}
-                });
+                });*/
+            return json::Document(
+                json::Builder()
+                .StartDict()
+                .Key("request_id").Value(static_cast<int>(id))
+                .Key("curvature").Value(route_stat->_curvature)
+                .Key("route_length").Value(static_cast<int>(route_stat->_real_route_length))
+                .Key("stop_count").Value(static_cast<int>(route_stat->_stops_on_route))
+                .Key("unique_stop_count").Value(static_cast<int>(route_stat->_unique_stops))
+                .EndDict()
+                .Build());
         }
     }
 
     // получение результата по остановкам
     json::Document JSONPrinter::StopReportNodeMaker(size_t id, transport_catalogue::StopStatPtr stop_stat) {
         if (stop_stat == nullptr) {
-            return json::Document(json::Dict{ { "request_id", static_cast<int>(id)}, {"error_message", "not found"} });
+            /*return json::Document(json::Dict{ { "request_id", static_cast<int>(id)}, {"error_message", "not found"} });*/
+            return json::Document(
+                json::Builder()
+                .StartDict()
+                .Key("request_id").Value(static_cast<int>(id))
+                .Key("error_message").Value("not found")
+                .EndDict()
+                .Build());
         }
         else {
             json::Array buses;
             for (auto& bus : stop_stat->_buses) {
                 buses.push_back(json::Node{std::string(bus)});
             }
-            return json::Document(json::Dict{ {"buses", buses}, {"request_id", static_cast<int>(id)}});
+            //return json::Document(json::Dict{ {"buses", buses}, {"request_id", static_cast<int>(id)}});
+            return json::Document(
+                json::Builder()
+                .StartDict()
+                .Key("buses").Value(buses)
+                .Key("request_id").Value(static_cast<int>(id))
+                .EndDict()
+                .Build());
         }
     }
 
     // получение json-результата по рендеру
-    json::Document JSONPrinter::MapRenderNodeMaker(size_t id, std::stringstream& stream) {
-        return json::Document(json::Dict{ { "map", stream.str()}, {"request_id", static_cast<int>(id)}});
+    json::Document JSONPrinter::MapRendererNodeMaker(size_t id, std::stringstream& stream) {
+        //return json::Document(json::Dict{ { "map", stream.str()}, {"request_id", static_cast<int>(id)}});
+        return json::Document(
+            json::Builder()
+            .StartDict()
+            .Key("map").Value(stream.str())
+            .Key("request_id").Value(static_cast<int>(id))
+            .EndDict()
+            .Build());
     }
 
     // вывод принтера
     JSONPrinter& JSONPrinter::PrintResult(std::ostream& out) {
-        json::PrintContext context(out, 0, 4);
+        json::PrintContext context(out, 4, 0);
         if (_json_base.size() != 0) {
             json::Print(json::Document(_json_base), context._out);
         }

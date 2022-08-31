@@ -307,7 +307,7 @@ namespace transport_catalogue {
 		// ---------------------------- блок загрузки данных ---------------------------------------
 
 		// загрузка данных для рендеринга
-		MapRenderer& MapRenderer::AddRenderData(std::pair<std::string, RendererData> data) {
+		MapRenderer& MapRenderer::AddRendererData(std::pair<std::string, RendererData> data) {
 
 			ToRouteRender route;
 
@@ -403,7 +403,7 @@ namespace transport_catalogue {
 		}
 
 		// модуль отрисовки
-		void MapRenderer::RenderProcess() {
+		void MapRenderer::RendererProcess() {
 
 			std::vector<std::unique_ptr<svg::Drawable>> picture_;   
 

@@ -1,5 +1,6 @@
 #pragma once
-#include "json.h"
+//#include "json.h"
+#include "json_builder.h"
 #include "domain.h"
 
 #include <sstream>
@@ -56,8 +57,8 @@ namespace json_reader {
 
         try
         {
-            if (result.GetRoot().IsMap()) {
-                return result.GetRoot().AsMap();
+            if (result.GetRoot().IsDict()) {
+                return result.GetRoot().AsDict();
             }
             else {
                 throw std::invalid_argument("Error JSON-input data. Incorrect input data format");
@@ -89,7 +90,7 @@ namespace json_reader {
 
         json::Document RouteReportNodeMaker(size_t, transport_catalogue::RouteStatPtr);         // получение результата по маршрутам
         json::Document StopReportNodeMaker(size_t, transport_catalogue::StopStatPtr);           // получение результата по остановкам
-        json::Document MapRenderNodeMaker(size_t, std::stringstream&);                          // получение json-результата по рендеру
+        json::Document MapRendererNodeMaker(size_t, std::stringstream&);                          // получение json-результата по рендеру
 
         JSONPrinter& PrintResult(std::ostream&);                                                // вывод принтера
 

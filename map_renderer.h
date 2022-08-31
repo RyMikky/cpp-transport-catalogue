@@ -169,7 +169,7 @@ namespace transport_catalogue {
 
             // ---------------------------- блок загрузки данных ---------------------------------------
 
-            MapRenderer& AddRenderData(std::pair<std::string, RendererData>);                   // загрузка данных для рендеринга
+            MapRenderer& AddRendererData(std::pair<std::string, RendererData>);                   // загрузка данных для рендеринга
 
             // ---------------------------- блок обработки ---------------------------------------------
 
@@ -178,7 +178,7 @@ namespace transport_catalogue {
             MapRenderer& PointLabelRender(std::vector<std::unique_ptr<svg::Drawable>>&);        // отрисовка названий остановок
             MapRenderer& PointRender(std::vector<std::unique_ptr<svg::Drawable>>&);             // отрисовка точек остановок
             
-            void RenderProcess();                                                               // модуль отрисовки
+            void RendererProcess();                                                               // модуль отрисовки
 
             template <typename DrawableIterator>
             void DrawPicture(DrawableIterator begin, DrawableIterator end, svg::ObjectContainer& target);

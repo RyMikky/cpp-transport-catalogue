@@ -23,6 +23,7 @@ namespace transport_catalogue
 		TransportCatalogue() = default;
 		~TransportCatalogue() = default;
 		
+		// ---------------------------------------------- блок методов загрузки информации ------------------------------------------------------
 		
 		void RangeCalculate(Route&);                                                      // Расчёт длины маршрута
 		void AddStop(Stop&&);                                                             // Добавить остановку
@@ -37,7 +38,7 @@ namespace transport_catalogue
 		RoutePtr GetRouteByName(const std::string_view) const;                            // Возвращает указатель на маршрут по его имени
 		RouteStatPtr GetRouteInfo(const std::string_view) const;                          // Возвращает указатель на результат запроса о маршруте
 		StopStatPtr GetBusesForStopInfo(const std::string_view) const;                    // Возвращает указатель на результат запроса о остановке
-		std::map<std::string, RendererData> GetRenderData();                      // Возвращает данные для рендеринга маршрутов
+		std::map<std::string, RendererData> GetRendererData();                            // Возвращает данные для рендеринга маршрутов
 
 	private:
 		

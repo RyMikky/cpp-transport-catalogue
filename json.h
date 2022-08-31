@@ -33,26 +33,26 @@ namespace json {
 
         // --------- получение знаечний--------
 
-        const Value& GetValue() const;
-        Value& GetValue();
+        const Value& GetValue() const;                                // вернуть значение корня
+        Value& GetValue();                                            // вернуть значение корня
 
-        int AsInt() const;
-        bool AsBool() const;
-        double AsDouble() const;
-        const std::string& AsString() const;
-        const Array& AsArray() const;
-        const Dict& AsMap() const;
+        int AsInt() const;                                            // получить значение int
+        bool AsBool() const;                                          // получить значение bool
+        double AsDouble() const;                                      // получить значение double
+        const std::string& AsString() const;                          // получить значение std::string
+        const Array& AsArray() const;                                 // получить значение std::vector<Node>
+        const Dict& AsDict() const;                                   // получить значение std::map<std::string, Node>
 
         // --------- bool операции ------------
 
-        bool IsInt() const;
-        bool IsDouble() const;
-        bool IsPureDouble() const;
-        bool IsBool() const;
-        bool IsString() const;
-        bool IsNull() const;
-        bool IsArray() const;
-        bool IsMap() const;
+        bool IsInt() const;                                           // проверить лежит ли в Node тип int
+        bool IsDouble() const;                                        // проверить лежит ли в Node тип double или int
+        bool IsPureDouble() const;                                    // проверить лежит ли в Node тип double
+        bool IsBool() const;                                          // проверить лежит ли в Node тип bool
+        bool IsString() const;                                        // проверить лежит ли в Node тип std::string
+        bool IsNull() const;                                          // проверить лежит ли в Node тип nullptr
+        bool IsArray() const;                                         // проверить лежит ли в Node тип std::vector<Node>
+        bool IsDict() const;                                          // проверить лежит ли в Node тип std::map<std::string, Node>
 
         bool operator==(const Node& other) const;
         bool operator!=(const Node& other) const;

@@ -133,7 +133,7 @@ namespace transport_catalogue
 		return new StopStat(stop_name, found_buses_sv);
 	}
 
-	std::map<std::string, RendererData> TransportCatalogue::GetRenderData() {
+	std::map<std::string, RendererData> TransportCatalogue::GetRendererData() {
 		std::map<std::string, RendererData> result;
 
 		for (auto& route : _all_buses_data) {
