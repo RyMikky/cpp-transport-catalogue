@@ -57,4 +57,4 @@ namespace transport_catalogue
 		std::string_view GetBusName(const Route);                                         // Возвращает string_view с номером автобуса для экземпляра структуры Route
 	};
 
-}
+} // namespace transport_catalogue
