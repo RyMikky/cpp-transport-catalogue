@@ -10,7 +10,7 @@
 namespace json {
 
     class Node;
-    // Сохраните объявления Dict и Array без изменения
+ 
     using Dict = std::map<std::string, Node>;
     using Array = std::vector<Node>;
     using Value = std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string>;
@@ -102,19 +102,6 @@ namespace json {
         PrintContext& GetContex() {
             return *this;
         }
-    };
-
-    // структура вывода значений в печать для последующей работы с std::visit
-    struct ValuePrinter {
-        std::ostream& out;
-
-        void operator()(std::nullptr_t) const;                   // печать нулевых значений
-        void operator()(int num) const;                          // печать целочисленных значений
-        void operator()(double num) const;                       // печать нецелочисленных значений
-        void operator()(bool boolean) const;                     // печать булеанов
-        void operator()(const std::string& line) const;          // печать строк
-        void operator()(const Array& array) const;               // печать массивов
-        void operator()(const Dict& dict) const;                 // печать словарей
     };
 
     void Print(const Document& doc, std::ostream& output);

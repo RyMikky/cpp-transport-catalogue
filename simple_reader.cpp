@@ -141,12 +141,12 @@ namespace simple_reader {
 
 		if (pos == line.npos) {
 			// запросы на получение информации
-			request->_key_name = line.substr(0, pos);
+			request->_name = line.substr(0, pos);
 			request->_type = transport_catalogue::RequestType::stat_info;
 		}
 		else {
 
-			request->_key_name = line.substr(0, pos);
+			request->_name = line.substr(0, pos);
 			line.remove_prefix(pos + 1);
 
 			// парсим атрибуты по типу ключа
@@ -236,5 +236,174 @@ namespace transport_catalogue {
 		}*/
 
 	} // namespace stat_reporter
+
+
+	namespace simple_reader {
+
+		SimpleReader::SimpleReader(std::istream& input, std::ostream& output)
+			: _input(input), _output(output) {
+		}
+
+		SimpleReader& SimpleReader::run_terminal_process() {
+			while (InProcess)
+			{
+				transport_catalogue::JsonRequest request;
+				std::string command = ""s; std::string command_line = ""s;
+				_input >> command;
+
+				if (command == "EXIT" || command == "exit") {
+					_output << "ОСТАНОВКА РАБОТЫ" << std::endl;
+					_output << "Если Вы желаете прекратить работу программы нажмите \"y\"" << std::endl; 
+
+					_output << "Для продолжения нажмите любую клавишу" << std::endl;
+						
+					char choise; std::cin >> choise;
+					if (choise == 'y') {
+						InProcess = false;
+					}
+				}
+
+				if (command == "CLEAR" || command == "clear") {
+					system("cls");
+				}
+
+				if (command == "HELP" || command == "COMMAND_LIST"
+					|| command == "help" || command == "command_list") {
+					CommandLineViewer();
+				}
+
+				if (command == "ADD_STOP" || command == "add_stop") {
+					std::getline(_input, command_line);
+					AddStopParser(&request, command_line);
+					_handler.AddStop(&(_requests_history.emplace_back(request)));
+				}
+
+				if (command == "ADD_ROUTE" || command == "add_route") {
+					std::getline(_input, command_line);
+					AddRouteParser(&request, command_line);
+					_handler.AddRoute(&(_requests_history.emplace_back(request)));
+				}
+
+				if (command == "ADD_DISTANCE" || command == "add_distance") {
+					std::getline(_input, command_line);
+					AddDistanceParser(&request, command_line);
+					_handler.AddDistance(&(_requests_history.emplace_back(request)));
+				}
+				
+			}
+	
+			return *this;
+		}
+
+		void SimpleReader::AddStopParser(transport_catalogue::JsonRequestPtr request, const std::string& input) {
+			request->_type = transport_catalogue::add_stop;
+			request->_key = "Stop";
+			std::string_view line = input; 
+			line.remove_prefix(std::min(line.find_first_of('{') + 1, line.size()));
+
+			// записываем название остановки
+			size_t pos = line.find_first_of('}');
+			request->_name = line.substr(0, pos);
+			line.remove_prefix(std::min(line.find_first_of('{') + 1, line.size()));
+
+			// записываем широту
+			pos = line.find_first_of('}');
+			request->_coord.lat = std::stod(std::string(line.substr(0, pos)));
+			line.remove_prefix(std::min(line.find_first_of('{') + 1, line.size()));
+
+			// записываем долготу
+			pos = line.find_first_of('}');
+			request->_coord.lng = std::stod(std::string(line.substr(0, pos)));
+			line.remove_prefix(std::min(line.find_first_of('{'), line.size()));
+
+			// записываем расстояния если они есть
+			while (line.size() != 0) {
+				if (line.find_first_of('{') > line.size()) {
+					break;
+				}
+				line.remove_prefix(std::min(line.find_first_of('{') + 1, line.size()));
+				std::string stop_name = ""; int range = 0;	
+
+				pos = line.find_first_of(" : ");
+				stop_name = line.substr(0, pos);
+				line.remove_prefix(std::min(pos + 3, line.size()));
+
+				pos = line.find_first_of('}');
+				range = std::stoi(std::string(line.substr(0, pos)));
+				line.remove_prefix(std::min(line.find_first_of('{'), line.size()));
+
+				request->_distances.insert({ stop_name, range });
+			}
+		}
+
+		void SimpleReader::AddRouteParser(transport_catalogue::JsonRequestPtr request, const std::string& input) {
+
+		}
+
+		void SimpleReader::AddDistanceParser(transport_catalogue::JsonRequestPtr request, const std::string& input) {
+
+		}
+
+		SimpleReader& SimpleReader::CommandLineViewer() {
+			_output << "СПИСОК КОМАНД (в произвольном регистре)"sv << std::endl;
+			_output << "КОМАНДЫ ЗАГРУЗКИ ИНФОРМАЦИИ:"sv << std::endl << std::endl;
+
+			_output << "  ADD_STOP - Добавить информацию по остановке."sv << std::endl;
+			_output << "  ADD_STOP {stop_name} : {latitude}, {longitude}"sv << std::endl;
+			_output << "  ADD_STOP {stop_name} : {latitude}, {longitude}, {stop1_name : distance}, {stopN_name : distance}"sv << std::endl;
+			_output << "    {stop_name} - название остановки"sv << std::endl;
+			_output << "    {latitude} - географическая широта остановки"sv << std::endl;
+			_output << "    {longitude} - географическая долгота остановки"sv << std::endl;
+			_output << "    {stopN_name : distance} - название другой остановки и расстояние до неё в метрах"sv << std::endl << std::endl;
+
+
+			_output << "  ADD_ROUTE - Добавить информацию по маршруту."sv << std::endl;
+			_output << "  ADD_ROUTE {route_name} : {circular or linear}, {stop1_name}, {stop2_name}, {stopN_name}"sv << std::endl;
+			_output << "    {route_name} - название маршрута"sv << std::endl;
+			_output << "    {circular} - кольцевой тип машрута"sv << std::endl;
+			_output << "    {linear} - линейный тип машрута"sv << std::endl;
+			_output << "    {stop1_name} - название остановки маршрута"sv << std::endl << std::endl;
+
+			_output << "  ADD_DISTANCE - Добавить растояние между остановками (A-B)"sv << std::endl;
+			_output << "  ADD_DISTANCE {stop_name} : {stop1_name : distance}, {stop2_name : distance}, {stopN_name : distance}"sv << std::endl;
+			_output << "    {stop_name} - название остановки (A)"sv << std::endl;
+			_output << "    {stopN_name : distance} - название другой остановки (B) и расстояние до неё в метрах"sv << std::endl << std::endl;
+
+			_output << "КОМАНДЫ ПОЛУЧЕНИЯ ИНФОРМАЦИИ:"sv << std::endl << std::endl;
+
+			_output << "  STOP_INFO - Получить информацию по остановке"sv << std::endl;
+			_output << "  STOP_INFO {stop_name}"sv << std::endl;
+			_output << "    {stop_name} - название остановки"sv << std::endl << std::endl;
+
+			_output << "  BUS_INFO - Получить информацию по маршруту"sv << std::endl;
+			_output << "  BUS_INFO {route_name}"sv << std::endl;
+			_output << "    {route_name} - название маршрута"sv << std::endl << std::endl;
+
+			_output << "  ROUTE_INFO - Получить информацию по маршруту"sv << std::endl;
+			_output << "  ROUTE_INFO {route_name}"sv << std::endl;
+			_output << "    {route_name} - название маршрута"sv << std::endl << std::endl;
+
+			_output << "  MAKE_ROUTE - Проложить маршрут между остановками"sv << std::endl;
+			_output << "  MAKE_ROUTE {stop_name_A}, {stop_name_В}"sv << std::endl;
+			_output << "    {route_name_A} - остановка отправления"sv << std::endl;
+			_output << "    {route_name_В} - остановка прибытия"sv << std::endl << std::endl;
+
+			_output << "  GET_MAP - Построить карту маршрутов в SVG-формате"sv << std::endl;
+			_output << "  GET_MAP {file_name} - Построить карту маршрутов и сохранить в файл"sv << std::endl << std::endl;
+
+			_output << "  MAKE_MAP - то же, что и GET_MAP"sv << std::endl;
+			_output << "  ROAD_MAP - то же, что и GET_MAP"sv << std::endl << std::endl;
+
+			_output << "СПРАВОЧНЫЕ И ВСПОМОГАТЕЛЬНЫЕ КОМАНДЫ:"sv << std::endl << std::endl;
+
+			_output << "  COMMAND_LIST - Получить список команд"sv << std::endl;
+			_output << "  CLEAR - Очистить экран консоли"sv << std::endl;
+			_output << "  HELP - Получить список команд"sv << std::endl;
+			_output << "  EXIT - Выход из терминала"sv << std::endl;
+
+			return *this;
+		}
+
+	} // namespace simple_reader 
 
 } // namespace transport_catalogue

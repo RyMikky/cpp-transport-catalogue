@@ -1,21 +1,30 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                             //
+//        class Transport Сatalogue                                                            //
+//        Самостоятельныый модуль-класс - основная библиотека остановок и маршрутов.           //
+//        Основной функционал - аккумуляция информации по элементам, поиск по базе,            //
+//        выдача требуемых данных с помощью методов-геттеров. API документирован ниже.         //
+//        Требования и зависимости:                                                            //
+//           1. domain.h - общая библиотека структур для работы программы                      //
+//           2. C++17 (STL)                                                                    //
+//                                                                                             //
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 #pragma once    
-#include "domain.h"
+#include "domain.h"              // модуль с общими структурами данных
 
 #include <deque>
-#include <map>             
+#include <map>
 #include <vector>
 #include <string>
 #include <string_view>
-#include <set>
-#include <ostream>         
-#include <unordered_set>
 #include <unordered_map>
-#include <algorithm>       
+#include <algorithm>
 
 namespace transport_catalogue
 {
 
-	// Основная программа
+
 	class TransportCatalogue
 	{
 		friend class RequestHandler;
@@ -26,27 +35,32 @@ namespace transport_catalogue
 		// ---------------------------------------------- блок методов загрузки информации ------------------------------------------------------
 		
 		void RangeCalculate(Route&);                                                      // Расчёт длины маршрута
-		void AddStop(Stop&&);                                                             // Добавить остановку
+		void AddStopsProcess(Stop&&);                                                             // Добавить остановку
 		void AddRoute(Route&&);                                                           // Добавить маршрут
 		void AddDistance(StopPtr, StopPtr, size_t);                                       // Добавить расстояние между двумя остановками
 		
 		// ---------------------------------------------- блок методов получения информации -----------------------------------------------------
 		
-		size_t GetDistance(StopPtr, StopPtr);                                             // Получить дистпнцию в прямом или обратном направлении
+		size_t GetStopsCount() const;                                                     // Получить количество остановок в базе
+		size_t GetDistance(StopPtr, StopPtr);                                             // Получить дистанцию в прямом или обратном направлении
 		size_t GetDistanceSimple(StopPtr, StopPtr);                                       // Получить дистанцию в прямом направлении
 		StopPtr GetStopByName(const std::string_view) const;                              // Возвращает указатель на остановку по ее имени
 		RoutePtr GetRouteByName(const std::string_view) const;                            // Возвращает указатель на маршрут по его имени
 		RouteStatPtr GetRouteInfo(const std::string_view) const;                          // Возвращает указатель на результат запроса о маршруте
 		StopStatPtr GetBusesForStopInfo(const std::string_view) const;                    // Возвращает указатель на результат запроса о остановке
-		std::map<std::string, RendererData> GetRendererData();                            // Возвращает данные для рендеринга маршрутов
+		std::map<std::string, RendererRequest> GetDataToRenderer();                       // Возвращает данные для рендеринга маршрутов
+		const std::deque<StopPtr>& GetAllStopsData() const;                               // Возвращает дек указателей на остановки для роутера
+		const std::deque<RoutePtr>& GetAllBusesData() const;                              // Возвращает дек указателей на маршруты для роутера
 
 	private:
 		
 		std::deque<Stop> _all_stops_data;                                                 // основной массив данных по остановкам
-		std::unordered_map<std::string_view, StopPtr> _all_stops_map;                     // мап указателей остановок
+		std::deque<StopPtr> _all_stops_to_router;                                         // массив указателей на остановки для роутера
+		std::unordered_map<std::string_view, StopPtr> _all_stops_map;                     // мап указателей остановок для быстрого поиска по базе
 		
 		std::deque<Route> _all_buses_data;                                                // основной массив маршрутов
-		std::unordered_map<std::string_view, RoutePtr> _all_buses_map;                    // мап указателей маршрутов
+		std::deque<RoutePtr> _all_buses_to_router;                                        // массив указателей на маршруты для роутера
+		std::unordered_map<std::string_view, RoutePtr> _all_buses_map;                    // мап указателей маршрутов для быстрого поиска по базе
 
 		std::unordered_map<std::pair<StopPtr, StopPtr>, size_t, PairPointersHasher> _distances_map;         // расстояния между остановками
 	

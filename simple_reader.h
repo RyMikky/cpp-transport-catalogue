@@ -5,7 +5,7 @@
 #include <vector>
 #include <string_view>
 
-#include "domain.h"
+#include "request_handler.h"
 
 using namespace std::literals;
 
@@ -37,7 +37,7 @@ namespace simple_reader {
 	void ParseAtribute(transport_catalogue::SimpleRequestPtr, std::string_view);
 
 	// начало пасинга запроса, определение ключа
-	void ParseRequest(transport_catalogue::SimpleRequestPtr);
+	void ParseRequest(transport_catalogue::SimpleRequestPtr, const std::string&);
 
 } // namespace input_reader
 
@@ -71,5 +71,31 @@ namespace transport_catalogue {
 		//};
 
 	} // namespace stat_reporter
+
+	namespace simple_reader {
+
+		class SimpleReader {
+		private:
+			std::istream& _input;
+			std::ostream& _output;
+			transport_catalogue::request_handler::RequestHandler _handler;                           // обработчик запросов к базе данных транспортного каталога
+		public:
+			SimpleReader(std::istream&, std::ostream&);
+
+			SimpleReader& run_terminal_process();                                                    // запуск режима-терминала
+
+		private:
+			bool InProcess = true;                                                                   // флаг работы запуска терминала
+			std::deque<transport_catalogue::JsonRequest> _requests_history;                          // история поступивших запросов 
+
+			void AddStopParser(transport_catalogue::JsonRequestPtr, const std::string&);
+			void AddRouteParser(transport_catalogue::JsonRequestPtr, const std::string&);
+			void AddDistanceParser(transport_catalogue::JsonRequestPtr, const std::string&);
+
+			SimpleReader& CommandLineViewer();                                                       // показать список доступных комманд
+
+		};
+
+	} // namespace simple_reader
 
 } // namespace transport_catalogue

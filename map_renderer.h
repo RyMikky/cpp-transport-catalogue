@@ -1,3 +1,16 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                             //
+//        class Map Renderer                                                                   //
+//        Несамостоятельный модуль-класс - SVG-визуализатор                                    //
+//        Подготавливает SVG строку по загруженным данным                                      //
+//        Требования и зависимости:                                                            //
+//           1. domain.h - общая библиотека структур для работы программы                      //
+//           2. svg.h - сторонняя библиотека формирования SVG-графики                          //
+//           3. geo.h - сторонняя библиотека работы с координатами                             //
+//           4. C++17 (STL)                                                                    //
+//                                                                                             //
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 #include "geo.h"
 #include "svg.h"
@@ -10,6 +23,7 @@
 #include <iostream>
 #include <optional>
 #include <vector>
+#include <sstream>
 #include <cassert>
 #include <map>
 
@@ -21,6 +35,7 @@ namespace transport_catalogue {
 
         bool IsZero(double value);
 
+
         class SphereProjector {
         public:
             SphereProjector() = default;
@@ -31,10 +46,10 @@ namespace transport_catalogue {
             svg::Point operator()(geo::Coordinates) const;                        // Проецирует широту и долготу в координаты внутри SVG-изображения
 
         private:
-            double padding_ = 0;
-            double min_lon_ = 0;
-            double max_lat_ = 0;
-            double zoom_coeff_ = 0;
+            double _padding = 0;                          // смещение
+            double _min_lon = 0;                          // минимальная долгота
+            double _max_lat = 0;                          // минимальная широта
+            double _zoom_coeff = 0;                       // кожффициент масштабирования
         };
 
         struct LabelOffset
@@ -158,18 +173,15 @@ namespace transport_catalogue {
 
         // основной класс рендера
         class MapRenderer {
-        protected:
-            std::ostream& _output;
         public:
             MapRenderer() = default;
-            MapRenderer(std::ostream&);                                                         // конструктор для самостоятельной работы
-            MapRenderer(std::ostream&, const RendererSettings&);                                // конструктор для вызова из обработчика запросов
+            MapRenderer(const RendererSettings&);                                               // конструктор для вызова из обработчика запросов
 
-            MapRenderer& SetRendererSettings(RendererSettings&&);                               // загрузка настроек рендера
+            MapRenderer& SetRendererSettings(const RendererSettings&);                          // загрузка настроек рендера
 
             // ---------------------------- блок загрузки данных ---------------------------------------
 
-            MapRenderer& AddRendererData(std::pair<std::string, RendererData>);                   // загрузка данных для рендеринга
+            MapRenderer& AddRendererData(std::pair<std::string, RendererRequest>);              // загрузка данных для рендеринга
 
             // ---------------------------- блок обработки ---------------------------------------------
 
@@ -178,7 +190,8 @@ namespace transport_catalogue {
             MapRenderer& PointLabelRender(std::vector<std::unique_ptr<svg::Drawable>>&);        // отрисовка названий остановок
             MapRenderer& PointRender(std::vector<std::unique_ptr<svg::Drawable>>&);             // отрисовка точек остановок
             
-            void RendererProcess();                                                               // модуль отрисовки
+            void StreamRendererProcess(std::ostream&);                                          // отрисовка через переданный поток
+            transport_catalogue::RendererData StructRendererProcess();                          // отрисовка в структура
 
             template <typename DrawableIterator>
             void DrawPicture(DrawableIterator begin, DrawableIterator end, svg::ObjectContainer& target);
@@ -216,7 +229,7 @@ namespace transport_catalogue {
         template <typename PointInputIt>
         SphereProjector::SphereProjector(PointInputIt points_begin, PointInputIt points_end,
             double max_width, double max_height, double padding)
-            : padding_(padding) //
+            : _padding(padding) //
         {
             // Если точки поверхности сферы не заданы, вычислять нечего
             if (points_begin == points_end) {
@@ -227,7 +240,7 @@ namespace transport_catalogue {
             const auto [left_it, right_it] = std::minmax_element(
                 points_begin, points_end,
                 [](auto lhs, auto rhs) { return lhs.lng < rhs.lng; });
-            min_lon_ = left_it->lng;
+            _min_lon = left_it->lng;
             const double max_lon = right_it->lng;
 
             // Находим точки с минимальной и максимальной широтой
@@ -235,32 +248,32 @@ namespace transport_catalogue {
                 points_begin, points_end,
                 [](auto lhs, auto rhs) { return lhs.lat < rhs.lat; });
             const double min_lat = bottom_it->lat;
-            max_lat_ = top_it->lat;
+            _max_lat = top_it->lat;
 
             // Вычисляем коэффициент масштабирования вдоль координаты x
             std::optional<double> width_zoom;
-            if (!IsZero(max_lon - min_lon_)) {
-                width_zoom = (max_width - 2 * padding) / (max_lon - min_lon_);
+            if (!IsZero(max_lon - _min_lon)) {
+                width_zoom = (max_width - 2 * padding) / (max_lon - _min_lon);
             }
 
             // Вычисляем коэффициент масштабирования вдоль координаты y
             std::optional<double> height_zoom;
-            if (!IsZero(max_lat_ - min_lat)) {
-                height_zoom = (max_height - 2 * padding) / (max_lat_ - min_lat);
+            if (!IsZero(_max_lat - min_lat)) {
+                height_zoom = (max_height - 2 * padding) / (_max_lat - min_lat);
             }
 
             if (width_zoom && height_zoom) {
                 // Коэффициенты масштабирования по ширине и высоте ненулевые,
                 // берём минимальный из них
-                zoom_coeff_ = std::min(*width_zoom, *height_zoom);
+                _zoom_coeff = std::min(*width_zoom, *height_zoom);
             }
             else if (width_zoom) {
                 // Коэффициент масштабирования по ширине ненулевой, используем его
-                zoom_coeff_ = *width_zoom;
+                _zoom_coeff = *width_zoom;
             }
             else if (height_zoom) {
                 // Коэффициент масштабирования по высоте ненулевой, используем его
-                zoom_coeff_ = *height_zoom;
+                _zoom_coeff = *height_zoom;
             }
         }
 

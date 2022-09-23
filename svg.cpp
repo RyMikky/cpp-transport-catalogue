@@ -44,9 +44,6 @@ namespace svg {
         context.out << std::endl;
     }
 
-    // ---------- ObjectContainer ---------
-
-
     // ---------- Circle ------------------
 
     Circle& Circle::SetCenter(Point center) {

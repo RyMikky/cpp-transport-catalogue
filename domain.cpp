@@ -61,7 +61,7 @@ namespace transport_catalogue {
 		_unique_stops(unique_stops), _real_route_length(real_range), _curvature(curvature), _name(name) {
 	}
 
-	// ------------------------ struct RequestSimple ---------------------
+	// ------------------------ struct SimpleRequest ---------------------
 
 	SimpleRequest::SimpleRequest(std::string&& line) : _input_line(line) {
 	}
@@ -70,33 +70,63 @@ namespace transport_catalogue {
 		return this;
 	}
 
-	// ------------------------ struct StatRequestSimple -----------------
-
-	StatRequestSimple::StatRequestSimple(std::string&& line) : _input_line(line) {
-	}
-
-	StatRequestSimplePtr StatRequestSimple::GetPtr() {
-		return this;
-	}
-
-	// ------------------------ struct RequestJSON -----------------------
+	// ------------------------ struct JsonRequest -----------------------
 
 	JsonRequestPtr JsonRequest::GetPtr() {
 		return this;
 	}
 
-	// ------------------------ struct StatRequestJSON -----------------
 
-	StatRequestJSONPtr StatRequestJSON::GetPtr() {
-		return this;
-	}
+	// ------------------------ struct RendererRequest -----------------
 
-	// ------------------------ struct RenderData ----------------------
-
-	RendererData::RendererData(bool type, std::vector<StopPtr> stops) 
+	RendererRequest::RendererRequest(bool type, std::vector<StopPtr> stops) 
 		: _is_circular(type), _stops(stops) {
 	}
 
-	// ------------------------ struct RenderData END ------------------
+	// ------------------------ struct RendererRequest END -------------
+
+
+	// ------------------------------- struct RouterItem -----------------------------------
+
+		// Задать название участка маршрута
+	RouterItem& RouterItem::SetItemName(std::string_view name) {
+		_item_name = name;
+		return *this;
+	}
+	// Задать количество преодаленных остановок на маршруте
+	RouterItem& RouterItem::SetItemSpanCount(int count) {
+		_span_count = count;
+		return *this;
+	}
+	// Задать время прохождения участка маршрута
+	RouterItem& RouterItem::SetItemTime(double time) {
+		_time = time;
+		return *this;
+	}
+	// Задать тип участка маршрута
+	RouterItem& RouterItem::SetItemEdgeType(graph::EdgeType type) {
+		_type = type;
+		return *this;
+	}
+
+	// Получить название участка маршрута
+	std::string_view RouterItem::GetItemName() const {
+		return _item_name;
+	}
+	// Получить количество преодаленных остановок на маршруте
+	int RouterItem::GetItemSpanCount() const {
+		return _span_count;
+	}
+	// Получить время прохождения участка маршрута
+	double RouterItem::GetItemTime() const {
+		return _time;
+	}
+	// Получить тип участка маршрута
+	graph::EdgeType RouterItem::GetItemType() const {
+		return _type;
+	}
+
+
+	// ------------------------------- struct RouterItem END -------------------------------
 
 }

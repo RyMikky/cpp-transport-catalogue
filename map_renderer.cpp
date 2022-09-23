@@ -10,8 +10,8 @@ namespace transport_catalogue {
 
 		svg::Point SphereProjector::operator()(geo::Coordinates coords) const {
 			return {
-				(coords.lng - min_lon_) * zoom_coeff_ + padding_,
-				(max_lat_ - coords.lat) * zoom_coeff_ + padding_
+				(coords.lng - _min_lon) * _zoom_coeff + _padding,
+				(_max_lat - coords.lat) * _zoom_coeff + _padding
 			};
 		}
 
@@ -289,17 +289,14 @@ namespace transport_catalogue {
 
 		// ---------------------------- class MapRender ---------------------------------------------
 
-		// конструктор для самостоятельной работы
-		MapRenderer::MapRenderer(std::ostream& out) : _output(out) {
-		}
 
 		// конструктор для вызова из обработчика запросов
-		MapRenderer::MapRenderer(std::ostream& out, const RendererSettings& settings) : _output(out), _settings(settings) {
+		MapRenderer::MapRenderer( const RendererSettings& settings) : _settings(settings) {
 		}
 
 		// загрузка настроек рендера
-		MapRenderer& MapRenderer::SetRendererSettings(RendererSettings&& settings) {
-			_settings = std::move(settings);
+		MapRenderer& MapRenderer::SetRendererSettings(const RendererSettings& settings) {
+			_settings = settings;
 			return *this;
 		}
 
@@ -307,7 +304,7 @@ namespace transport_catalogue {
 		// ---------------------------- блок загрузки данных ---------------------------------------
 
 		// загрузка данных для рендеринга
-		MapRenderer& MapRenderer::AddRendererData(std::pair<std::string, RendererData> data) {
+		MapRenderer& MapRenderer::AddRendererData(std::pair<std::string, RendererRequest> data) {
 
 			ToRouteRender route;
 
@@ -403,7 +400,7 @@ namespace transport_catalogue {
 		}
 
 		// модуль отрисовки
-		void MapRenderer::RendererProcess() {
+		void MapRenderer::StreamRendererProcess(std::ostream& output) {
 
 			std::vector<std::unique_ptr<svg::Drawable>> picture_;   
 
@@ -413,8 +410,23 @@ namespace transport_catalogue {
 
 			svg::Document map;
 			DrawPicture(picture_, map);
-			map.Render(_output);
+			map.Render(output);
 
+		}
+
+		transport_catalogue::RendererData MapRenderer::StructRendererProcess() {
+			std::vector<std::unique_ptr<svg::Drawable>> picture_;
+
+			RouteRender(picture_);                           // отрисовываем линии маршрутов
+			PointRender(picture_);                           // отрисовываем точки остановок
+			PointLabelRender(picture_);                      // отрисовываем названия остановок
+
+			std::stringstream output;
+			svg::Document map;
+			DrawPicture(picture_, map);
+			map.Render(output);
+
+			return { output.str() };
 		}
 
 		// возвращает следующий цвет из цветовой палитры

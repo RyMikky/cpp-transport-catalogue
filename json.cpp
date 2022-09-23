@@ -518,96 +518,9 @@ namespace json {
         out.put('}');
     }
 
-    // --------- struct ValuePrinter ------
-
-    void ValuePrinter::operator()(std::nullptr_t) const {
-        out << "null"sv;
-    }
-
-    void ValuePrinter::operator()(int num) const {
-        out << num;
-    }
-
-    void ValuePrinter::operator()(double num) const {
-        out << num;
-    }
-
-    void ValuePrinter::operator()(bool boolean) const {
-        boolean ? out << "true"sv : out << "false"sv;
-    }
-
-    void ValuePrinter::operator()(const std::string& line) const {
-        out.put('"');
-        for (const char c : line) {
-            switch (c)
-            {
-            case '\r':
-                out << "\\r"sv;
-                break;
-            case '\n':
-                out << "\\n"sv;
-                break;
-            case '"':
-                // Символы " и \ выводятся как \" или \\, соответственно
-                [[fallthrough]];
-            case '\\':
-                out.put('\\');
-                [[fallthrough]];
-            default:
-                out.put(c);
-                break;
-            }
-        }
-        out.put('"');
-    }
-
-    void ValuePrinter::operator()(const Array& array) const {
-        bool IsFirst = true;
-        out.put('[');
-        out.put(' ');
-        for (auto& item : array) {
-            if (!IsFirst) {
-                out.put(',');
-                out.put(' ');
-            }
-            else {
-                IsFirst = false;
-            }
-            auto val = item.GetValue();
-            std::visit(ValuePrinter{ out }, val);
-        }
-        out.put(' ');
-        out.put(']');
-    }
-
-    void ValuePrinter::operator()(const Dict& dict) const {
-        bool IsFirst = true;
-        out.put('{');
-        out.put(' ');
-        for (auto& item : dict) {
-            if (!IsFirst) {
-                out.put(',');
-                out.put(' ');
-            }
-            else {
-                IsFirst = false;
-            }
-            PrintValue(item.first, PrintContext(out, 4, 0));
-            out << " : "sv;
-            auto val = item.second.GetValue();
-            std::visit(ValuePrinter{ out }, val);
-        }
-        out.put(' ');
-        out.put('}');
-    }
+    
 
     void Print(const Document& doc, std::ostream& output) {
-        // вариант через ValuePrinter, почему-то работает медленнее в среднем на 15%
-        // предположительно замедление за счет того, что каждый раз содается структура
-        // на создание структуры трятятся ресурсы и время
-        //std::visit(ValuePrinter{ PrintContext(output, 4, 0).GetContex()._out}, doc.GetRoot().GetValue());
-
-        // вариант через раздельные функции PrintValue, работает в среднем на 15% быстрее
         std::visit(
             [&output](const auto& value) {
                 PrintValue(value, PrintContext(output, 4, 0)); }, doc.GetRoot().GetValue());

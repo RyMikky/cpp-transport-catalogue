@@ -1,5 +1,6 @@
 #pragma once
 #include "geo.h"
+#include "graph.h"
 
 #include <string>
 #include <string_view>
@@ -102,7 +103,7 @@ namespace transport_catalogue {
 
 	enum RequestType {
 		null_req = 0,
-		add_stop, add_route, add_dist, stop_info, route_info, stat_info, map_render, print_history
+		add_stop, add_route, add_dist, stop_info, route_info, stat_info, map_render, print_history, routing
 
 		// stat_info - общий тип запроса на получение информации по маршруту или остановке
 		// нужен по условию задачи, так как все запросы на получение информации должны 
@@ -116,27 +117,19 @@ namespace transport_catalogue {
 		// которые задаются в случайном порядке
 	};
 
-	// запрос на обновление базы в simple-режиме
+	// структура запроса для работы c терминалом
 	struct SimpleRequest;
 	using SimpleRequestPtr = SimpleRequest*;
 
-	// запрос на получение информации в simple-режиме
-	struct StatRequestSimple;
-	using StatRequestSimplePtr = StatRequestSimple*;
-
-	// запрос на обновление базы в json-режиме
+	// структура запроса для работы с json
 	struct JsonRequest;
 	using JsonRequestPtr = JsonRequest*;
 
-	// запрос на получение информации в json-режиме
-	struct StatRequestJSON;
-	using StatRequestJSONPtr = StatRequestJSON*;
-
 	// запрос на получение данных для рендера
-	struct RendererData;
-	using RendererDataPtr = RendererData*;
+	struct RendererRequest;
+	using RendererDataPtr = RendererRequest*;
 
-	// структура запроса на обновление базы в simple-режиме
+	// структура запроса для работы с терминалом
 	struct SimpleRequest {
 		SimpleRequest() = default;
 
@@ -146,8 +139,10 @@ namespace transport_catalogue {
 
 		size_t _id = 0;                                          // id запроса
 		RequestType _type = RequestType::null_req;               // тип запроса
-		std::string_view _key = ""sv;                            // ключ запроса (Bus, Stop)
-		std::string_view _key_name = ""sv;                       // имя запроса (маршрута, остановки)
+		std::string_view _key = ""sv;                            // ключ запроса (Bus, Stop, Map, Route)
+		std::string_view _name = ""sv;                           // имя запроса (маршрута, остановки)
+		std::string_view _from = ""sv;                           // начало пути для запроса Route
+		std::string_view _to = ""sv;                             // конечная пути для запроса Route
 		geo::Coordinates _coord = { 0L, 0L };                    // координаты, если остановка
 		std::vector<std::string_view> _stops = {};               // остановки, если маршрут
 		std::map<std::string_view, int64_t> _distances = {};     // расстояния до остановок
@@ -155,22 +150,7 @@ namespace transport_catalogue {
 		std::string _input_line = ""s;                           // входная строка
 	};
 
-	// структура запроса на получение информации в simple-режиме
-	struct StatRequestSimple {
-
-		StatRequestSimple() = default;
-
-		explicit StatRequestSimple(std::string&& line);
-
-		StatRequestSimplePtr GetPtr();
-
-		RequestType _type = RequestType::stat_info;              // тип запроса
-		std::string_view _key = ""sv;                            // ключ запроса
-		std::string_view _key_name = ""sv;                       // имя запроса (маршрута, остановки)
-		std::string _input_line = ""s;                           // входная строка
-	};
-
-	// структура запроса на обновление базы в simpjsonle-режиме
+	// структура запроса для работы с json
 	struct JsonRequest {
 		JsonRequest() = default;
 
@@ -178,8 +158,10 @@ namespace transport_catalogue {
 
 		size_t _id = 0;                                          // id запроса
 		RequestType _type = RequestType::null_req;               // тип запроса
-		std::string _key = ""s;                                  // ключ запроса (Bus, Stop)
+		std::string _key = ""s;                                  // ключ запроса (Bus, Stop, Map, Route)
 		std::string _name = ""s;                                 // имя запроса (маршрута, остановки)
+		std::string _from = ""s;                                 // начало пути для запроса Route
+		std::string _to = ""s;                                   // конечная пути для запроса Route
 		geo::Coordinates _coord = { 0L, 0L };                    // координаты, если остановка
 		std::vector<std::string> _stops = {};                    // остановки, если маршрут
 		std::map<std::string, int64_t> _distances = {};          // расстояния до остановок
@@ -187,25 +169,44 @@ namespace transport_catalogue {
 
 	};
 
-	// структура запроса на получение информации в json-режиме
-	struct StatRequestJSON {
-
-		StatRequestJSON() = default;
-
-		StatRequestJSONPtr GetPtr();
-
-		RequestType _type = RequestType::stat_info;              // тип запроса
-		std::string _key = ""s;                                  // ключ запроса (Bus, Stop)
-		std::string _name = ""s;                                 // имя запроса (маршрута, остановки)
-	};
-
 	// запрос на обновление параметров рендера
-	struct RendererData {
-		RendererData() = default;
-		RendererData(bool, std::vector<StopPtr>);
+	struct RendererRequest {
+		RendererRequest() = default;
+		RendererRequest(bool, std::vector<StopPtr>);
 
 		bool _is_circular = false;
 		std::vector<StopPtr> _stops;
 	};
 
-}
+	// Структура ответа рендера в виде строки
+	struct RendererData {
+		std::string _svg_line = {};
+	};
+
+	// Структура участка построенного маршрута 
+	struct RouterItem
+	{
+		RouterItem& SetItemName(std::string_view);                    // Задать название участка маршрута
+		RouterItem& SetItemSpanCount(int);                            // Задать количество преодаленных остановок на участке маршруте
+		RouterItem& SetItemTime(double);                              // Задать время прохождения участка маршрута
+		RouterItem& SetItemEdgeType(graph::EdgeType);                 // Задать тип участка маршрута
+
+		std::string_view GetItemName() const;                         // Получить название участка маршрута
+		int GetItemSpanCount() const;                                 // Получить количество преодаленных остановок на участке маршруте
+		double GetItemTime() const;                                   // Получить время прохождения участка маршрута
+		graph::EdgeType GetItemType() const;                          // Получить тип участка маршрута
+
+		std::string _item_name = {};                                  // Название участка маршрута
+		int _span_count = 0;                                          // Количество преодаленных остановок на участке маршруте
+		double _time = 0.0;                                           // Время прохождения участка маршрута
+		graph::EdgeType _type;                                        // Тип участка маршрута
+	};
+	// Структура построенного маршрута
+	struct RouterData
+	{
+		double _route_time = 0.0;                                     // Время в пути на маршруте
+		std::vector<RouterItem> _route_items;                         // Участки маршрута
+		bool _is_founded = false;                                     // Статус маршрута
+	};
+
+} // namespace transport_catalogue
