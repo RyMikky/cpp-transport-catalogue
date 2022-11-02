@@ -1,0 +1,18 @@
+// прото-файл сериализации цветов
+
+syntax = "proto3";
+
+package transport_catalogue_serialize;
+
+message Color {
+    bool is_rgb = 1;                                  // тип цвета RGB
+    bool is_rgba = 2;                                 // тип цвета RGBA
+    bool is_title = 3;                                // тип цвета надпись
+
+    uint32 color_component_r = 4;                     // красный канал
+    uint32 color_component_g = 5;                     // зеленый канал
+    uint32 color_component_b = 6;                     // синий канал
+
+    double color_component_a = 7;                     // альфа-канал цвета
+    string color_label = 8;                           // текстовое обозначение цвета
+}

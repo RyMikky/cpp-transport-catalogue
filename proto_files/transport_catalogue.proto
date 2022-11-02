@@ -1,0 +1,49 @@
+// базовый прото-файл сериализации каталога
+// зависимости : map_renderer.proto, transport_router.proto
+
+syntax = "proto3";
+
+package transport_catalogue_serialize;
+
+message Coordinates {
+    double latitude = 1;                              // широта
+    double longitude = 2;                             // долгота
+}
+
+message Stop {
+    string stop_name = 1;                             // название остановки
+    Coordinates stop_coordinates = 2;                 // координаты остановки
+}
+
+message Bus {
+    string bus_name = 1;                              // название маршрута
+    repeated string bus_stops = 2;                    // остановки маршрута
+    uint64 unique_stops_qty = 3;                      // количество уникальных остановок на маршруте
+	double geo_route_length = 4;                      // длина маршрута (геометрическое расстояние)
+	uint64 real_route_length = 5;                     // действительная длина маршрута в метрах
+	double curvature = 6;                             // отклонение действительного расстояния от геометрического
+	bool is_circular = 7;                             // тип маршрута (круговой или линейный)
+}
+
+message Distance {
+    string from = 1;                                  // название остановки откуда
+    string to = 2;                                    // название остановки куда
+    uint64 range = 3;                                 // величина расстояния
+}
+
+import public "map_renderer.proto";
+
+message RouterSettings {
+    uint64 bus_wait_time = 1;                         // Время ожидания подхода автобуса
+    double bus_velocity = 2;                          // Скорость движения автобуса в км/ч
+}
+
+import public "transport_router.proto";
+
+message TransportCatalogue {
+	repeated Stop stops_data = 1;                     // массив данных остановок
+	repeated Bus buses_data = 2;                      // массив данных маршрутов
+    repeated Distance distances_data = 3;             // массив данных дистанций
+    RendererSettings renderer_settings = 4;           // данные настроек рендера
+    RouterSettings router_settings = 5;               // данные настроек роутера
+}

@@ -1,0 +1,106 @@
+﻿// единый прото-файл сериализации каталога
+// зависимости : map_renderer.proto
+
+syntax = "proto3";
+
+package transport_catalogue_serialize;
+
+message Coordinates {
+    double latitude = 1;                                   // широта
+    double longitude = 2;                                  // долгота
+}
+
+message Stop {
+    string stop_name = 1;                                  // название остановки
+    Coordinates stop_coordinates = 2;                      // координаты остановки
+}
+
+message Bus {
+    string bus_name = 1;                                   // название маршрута
+    repeated string bus_stops = 2;                         // остановки маршрута
+    uint64 unique_stops_qty = 3;                           // количество уникальных остановок на маршруте
+	double geo_route_length = 4;                           // длина маршрута (геометрическое расстояние)
+	uint64 real_route_length = 5;                          // действительная длина маршрута в метрах
+	double curvature = 6;                                  // отклонение действительного расстояния от геометрического
+	bool is_circular = 7;                                  // тип маршрута (круговой или линейный)
+}
+
+message Distance {
+    string from = 1;                                       // название остановки откуда
+    string to = 2;                                         // название остановки куда
+    uint64 range = 3;                                      // величина расстояния
+}
+
+message Color {
+    bool is_rgb = 1;                                       // тип цвета RGB
+    bool is_rgba = 2;                                      // тип цвета RGBA
+    bool is_title = 3;                                     // тип цвета надпись
+
+    uint32 color_component_r = 4;                          // красный канал
+    uint32 color_component_g = 5;                          // зеленый канал
+    uint32 color_component_b = 6;                          // синий канал
+
+    double color_component_a = 7;                          // альфа-канал цвета
+    string color_label = 8;                                // текстовое обозначение цвета
+}
+
+message RendererSettings {
+	double width = 1;                                      // ширина отображения в пикселях
+    double height = 2;                                     // высота отображения в пикселях
+
+    double padding = 3;                                    // отступ краёв карты от границ SVG-документа.
+    double line_width = 4;                                 // толщина линий, которыми рисуются автобусные маршруты
+    double stop_radius = 5;                                // радиус окружностей, которыми обозначаются остановки
+
+    uint64 bus_label_font_size = 6;                        // размер текста, которым написаны названия автобусных маршрутов
+    double bus_label_offset_x = 7;                         // смещение надписи с названием маршрута относительно координат по Х
+    double bus_label_offset_y = 8;                         // смещение надписи с названием маршрута относительно координат по У
+
+    uint64 stop_label_font_size = 9;                       // размер текста, которым отображаются названия остановок
+    double stop_label_offset_x = 10;                       // смещение названия остановки относительно её координат по Х
+    double stop_label_offset_y = 11;                       // смещение названия остановки относительно её координат по У
+
+    Color underlayer_color = 12;                           // цвет подложки под названиями остановок и маршрутов
+    double underlayer_width = 13;                          // толщина подложки под названиями остановок и маршрутов
+    repeated Color color_palette = 14;                     // цветовая палитра
+}
+
+message RouterSettings {
+    uint64 bus_wait_time = 1;                              // время ожидания подхода автобуса
+    double bus_velocity = 2;                               // скорость движения автобуса в км/ч
+}
+
+message RouterEdge {
+    string edge_type = 1;                                  // тип ребра графа
+    uint64 edge_from = 2;                                  // id откуда ребро
+    uint64 edge_to = 3;                                    // id куда ребро
+    double edge_weight = 4;                                // вес ребра графа
+    string edge_name = 5;                                  // имя ребра графа
+    int32 span_count = 6;                                  // количество пересадок
+}
+
+message RouterWaitPoint {
+    string wait_point_name = 1;                            // название точки ожидания
+    uint64 wait_point_id = 2;                              // id точки ожидания
+}
+
+message RouterMovePoint {
+    string move_point_name = 1;                            // название точки движения
+    uint64 move_point_id = 2;                              // id точки движения
+}
+
+message RouterData {
+    uint64 vertex_count = 1;                               // количество вершин графов
+    repeated RouterEdge router_edges = 2;                  // вершины графов
+    repeated RouterWaitPoint router_wait_points = 3;       // список вершин ожидания
+    repeated RouterMovePoint router_move_points = 4;       // список вершин перемещения
+}
+
+message TransportCatalogue {
+	repeated Stop stops_data = 1;                          // массив данных остановок
+	repeated Bus buses_data = 2;                           // массив данных маршрутов
+    repeated Distance distances_data = 3;                  // массив данных дистанций
+    RendererSettings renderer_settings = 4;                // данные настроек рендера
+    RouterSettings router_settings = 5;                    // данные настроек роутера
+    RouterData router_data = 6;                            // данные базы роутера
+}

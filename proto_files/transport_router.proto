@@ -1,0 +1,25 @@
+﻿// прото-файл сериализации базы роутера
+// зависимости : graph.proto
+
+syntax = "proto3";
+
+package transport_catalogue_serialize;
+
+import public "graph.proto";
+
+message RouterWaitPoint {
+    string wait_point_name = 1;                            // название точки ожидания
+    uint64 wait_point_id = 2;                              // id точки ожидания
+}
+
+message RouterMovePoint {
+    string move_point_name = 1;                            // название точки движения
+    uint64 move_point_id = 2;                              // id точки движения
+}
+
+message RouterData {
+    uint64 vertex_count = 1;                               // количество вершин графов
+    repeated RouterEdge router_edges = 2;                  // вершины графов
+    repeated RouterWaitPoint router_wait_points = 3;       // список вершин ожидания
+    repeated RouterMovePoint router_move_points = 4;       // список вершин перемещения
+}

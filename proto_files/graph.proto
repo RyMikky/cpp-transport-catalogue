@@ -1,0 +1,14 @@
+﻿// прото-файл для работы графов роутера
+
+syntax = "proto3";
+
+package transport_catalogue_serialize;
+
+message RouterEdge {
+    string edge_type = 1;                                  // тип ребра графа
+    uint64 edge_from = 2;                                  // id откуда ребро
+    uint64 edge_to = 3;                                    // id куда ребро
+    double edge_weight = 4;                                // вес ребра графа
+    string edge_name = 5;                                  // имя ребра графа
+    int32 span_count = 6;                                  // количество пересадок
+}
