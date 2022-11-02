@@ -1,4 +1,4 @@
-#include "svg.h"
+п»ї#include "svg.h"
 
 namespace svg {
 
@@ -38,7 +38,7 @@ namespace svg {
     void Object::Render(const RenderContext& context) const {
         context.RenderIndent();
 
-        // Делегируем вывод тега своим подклассам
+        // Р”РµР»РµРіРёСЂСѓРµРј РІС‹РІРѕРґ С‚РµРіР° СЃРІРѕРёРј РїРѕРґРєР»Р°СЃСЃР°Рј
         RenderObject(context);
 
         context.out << std::endl;
@@ -86,7 +86,7 @@ namespace svg {
         }
         out << "\""sv;
         RenderAttrs(context.out);
-        out << " />"sv;
+        out << "/>"sv;
     }
 
     // ---------- Text --------------------
@@ -169,7 +169,7 @@ namespace svg {
             _objects[i]->Render(context_);
         }
         context_.indent -= context_.indent_step;
-        out << "</svg>"sv << std::endl;
+        out << "</svg>"sv;
     }
 
 }  // namespace svg

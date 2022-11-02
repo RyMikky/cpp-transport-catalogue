@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include <iostream>
 #include <map>
@@ -15,7 +15,7 @@ namespace json {
     using Array = std::vector<Node>;
     using Value = std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string>;
 
-    // Эта ошибка должна выбрасываться при ошибках парсинга JSON
+    // Р­С‚Р° РѕС€РёР±РєР° РґРѕР»Р¶РЅР° РІС‹Р±СЂР°СЃС‹РІР°С‚СЊСЃСЏ РїСЂРё РѕС€РёР±РєР°С… РїР°СЂСЃРёРЅРіР° JSON
     class ParsingError : public std::runtime_error {
     public:
         using runtime_error::runtime_error;
@@ -31,28 +31,28 @@ namespace json {
 
         Node(Value value);
 
-        // --------- получение знаечний--------
+        // --------- РїРѕР»СѓС‡РµРЅРёРµ Р·РЅР°РµС‡РЅРёР№--------
 
-        const Value& GetValue() const;                                // вернуть значение корня
-        Value& GetValue();                                            // вернуть значение корня
+        const Value& GetValue() const;                                // РІРµСЂРЅСѓС‚СЊ Р·РЅР°С‡РµРЅРёРµ РєРѕСЂРЅСЏ
+        Value& GetValue();                                            // РІРµСЂРЅСѓС‚СЊ Р·РЅР°С‡РµРЅРёРµ РєРѕСЂРЅСЏ
 
-        int AsInt() const;                                            // получить значение int
-        bool AsBool() const;                                          // получить значение bool
-        double AsDouble() const;                                      // получить значение double
-        const std::string& AsString() const;                          // получить значение std::string
-        const Array& AsArray() const;                                 // получить значение std::vector<Node>
-        const Dict& AsDict() const;                                   // получить значение std::map<std::string, Node>
+        int AsInt() const;                                            // РїРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ int
+        bool AsBool() const;                                          // РїРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ bool
+        double AsDouble() const;                                      // РїРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ double
+        const std::string& AsString() const;                          // РїРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ std::string
+        const Array& AsArray() const;                                 // РїРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ std::vector<Node>
+        const Dict& AsDict() const;                                   // РїРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ std::map<std::string, Node>
 
-        // --------- bool операции ------------
+        // --------- bool РѕРїРµСЂР°С†РёРё ------------
 
-        bool IsInt() const;                                           // проверить лежит ли в Node тип int
-        bool IsDouble() const;                                        // проверить лежит ли в Node тип double или int
-        bool IsPureDouble() const;                                    // проверить лежит ли в Node тип double
-        bool IsBool() const;                                          // проверить лежит ли в Node тип bool
-        bool IsString() const;                                        // проверить лежит ли в Node тип std::string
-        bool IsNull() const;                                          // проверить лежит ли в Node тип nullptr
-        bool IsArray() const;                                         // проверить лежит ли в Node тип std::vector<Node>
-        bool IsDict() const;                                          // проверить лежит ли в Node тип std::map<std::string, Node>
+        bool IsInt() const;                                           // РїСЂРѕРІРµСЂРёС‚СЊ Р»РµР¶РёС‚ Р»Рё РІ Node С‚РёРї int
+        bool IsDouble() const;                                        // РїСЂРѕРІРµСЂРёС‚СЊ Р»РµР¶РёС‚ Р»Рё РІ Node С‚РёРї double РёР»Рё int
+        bool IsPureDouble() const;                                    // РїСЂРѕРІРµСЂРёС‚СЊ Р»РµР¶РёС‚ Р»Рё РІ Node С‚РёРї double
+        bool IsBool() const;                                          // РїСЂРѕРІРµСЂРёС‚СЊ Р»РµР¶РёС‚ Р»Рё РІ Node С‚РёРї bool
+        bool IsString() const;                                        // РїСЂРѕРІРµСЂРёС‚СЊ Р»РµР¶РёС‚ Р»Рё РІ Node С‚РёРї std::string
+        bool IsNull() const;                                          // РїСЂРѕРІРµСЂРёС‚СЊ Р»РµР¶РёС‚ Р»Рё РІ Node С‚РёРї nullptr
+        bool IsArray() const;                                         // РїСЂРѕРІРµСЂРёС‚СЊ Р»РµР¶РёС‚ Р»Рё РІ Node С‚РёРї std::vector<Node>
+        bool IsDict() const;                                          // РїСЂРѕРІРµСЂРёС‚СЊ Р»РµР¶РёС‚ Р»Рё РІ Node С‚РёРї std::map<std::string, Node>
 
         bool operator==(const Node& other) const;
         bool operator!=(const Node& other) const;
@@ -77,7 +77,7 @@ namespace json {
 
     Document Load(std::istream& input);
 
-    // Контекст вывода, хранит ссылку на поток вывода и текущий отсуп
+    // РљРѕРЅС‚РµРєСЃС‚ РІС‹РІРѕРґР°, С…СЂР°РЅРёС‚ СЃСЃС‹Р»РєСѓ РЅР° РїРѕС‚РѕРє РІС‹РІРѕРґР° Рё С‚РµРєСѓС‰РёР№ РѕС‚СЃСѓРї
     struct PrintContext {
         PrintContext(std::ostream& out) : _out(out) {
         }
@@ -94,7 +94,7 @@ namespace json {
 
         void PrintIndent() const;
 
-        // Возвращает новый контекст вывода с увеличенным смещением
+        // Р’РѕР·РІСЂР°С‰Р°РµС‚ РЅРѕРІС‹Р№ РєРѕРЅС‚РµРєСЃС‚ РІС‹РІРѕРґР° СЃ СѓРІРµР»РёС‡РµРЅРЅС‹Рј СЃРјРµС‰РµРЅРёРµРј
         PrintContext Indented() const {
             return { _out, _indent_step, _indent_step + _indent };
         }

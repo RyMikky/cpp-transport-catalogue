@@ -1,4 +1,4 @@
-#include "json_reader.h"
+п»ї#include "json_reader.h"
 
 namespace transport_catalogue {
 
@@ -6,25 +6,25 @@ namespace transport_catalogue {
 
         namespace detail {
 
-            //загрузка JSON из переданной строки
+            //Р·Р°РіСЂСѓР·РєР° JSON РёР· РїРµСЂРµРґР°РЅРЅРѕР№ СЃС‚СЂРѕРєРё
             json::Document LoadJson(const std::string& s) {
                 std::istringstream strm(s);
                 return json::Load(strm);
             }
 
-            // загрузка JSON из переданного потока
+            // Р·Р°РіСЂСѓР·РєР° JSON РёР· РїРµСЂРµРґР°РЅРЅРѕРіРѕ РїРѕС‚РѕРєР°
             json::Document LoadJson(std::istream& input) {
                 return json::Load(input);
             }
 
-            // печать Node и вывод в std::string
+            // РїРµС‡Р°С‚СЊ Node Рё РІС‹РІРѕРґ РІ std::string
             std::string PrintJson(const json::Node& node) {
                 std::ostringstream out;
                 json::Print(json::Document{ node }, out);
                 return out.str();
             }
 
-            // прямой вывод Node в поток
+            // РїСЂСЏРјРѕР№ РІС‹РІРѕРґ Node РІ РїРѕС‚РѕРє
             std::ostream& operator<<(std::ostream& out, const json::Node& node) {
                 json::Print(json::Document{ node }, out);
                 return out;
@@ -36,19 +36,19 @@ namespace transport_catalogue {
 
         // ---------------------------------------- class JsonPrinter ---------------------------------------------------
 
-        // добавление документа в принтер
+        // РґРѕР±Р°РІР»РµРЅРёРµ РґРѕРєСѓРјРµРЅС‚Р° РІ РїСЂРёРЅС‚РµСЂ
         void JsonPrinter::AddDocument(const json::Node& node) {
             _json_base.push_back(std::move(node));
         }
 
-        // получение json-результата по маршрутам
+        // РїРѕР»СѓС‡РµРЅРёРµ json-СЂРµР·СѓР»СЊС‚Р°С‚Р° РїРѕ РјР°СЂС€СЂСѓС‚Р°Рј
         json::Document JsonPrinter::RouteReportNodeMaker(size_t id, transport_catalogue::RouteStatPtr route_stat) {
             if (route_stat == nullptr) {
                 return json::Document(
                     json::Builder()
                     .StartDict()
-                    .Key("request_id").Value(static_cast<int>(id))
-                    .Key("error_message").Value("not found")
+                    .Key("request_id"s).Value(static_cast<int>(id))
+                    .Key("error_message"s).Value("not found"s)
                     .EndDict()
                     .Build());
             }
@@ -56,24 +56,24 @@ namespace transport_catalogue {
                 return json::Document(
                     json::Builder()
                     .StartDict()
-                    .Key("request_id").Value(static_cast<int>(id))
-                    .Key("curvature").Value(route_stat->_curvature)
-                    .Key("route_length").Value(static_cast<int>(route_stat->_real_route_length))
-                    .Key("stop_count").Value(static_cast<int>(route_stat->_stops_on_route))
-                    .Key("unique_stop_count").Value(static_cast<int>(route_stat->_unique_stops))
+                    .Key("request_id"s).Value(static_cast<int>(id))
+                    .Key("curvature"s).Value(route_stat->_curvature)
+                    .Key("route_length"s).Value(static_cast<int>(route_stat->_real_route_length))
+                    .Key("stop_count"s).Value(static_cast<int>(route_stat->_stops_on_route))
+                    .Key("unique_stop_count"s).Value(static_cast<int>(route_stat->_unique_stops))
                     .EndDict()
                     .Build());
             }
         }
 
-        // получение json-результата по остановкам
+        // РїРѕР»СѓС‡РµРЅРёРµ json-СЂРµР·СѓР»СЊС‚Р°С‚Р° РїРѕ РѕСЃС‚Р°РЅРѕРІРєР°Рј
         json::Document JsonPrinter::StopReportNodeMaker(size_t id, transport_catalogue::StopStatPtr stop_stat) {
             if (stop_stat == nullptr) {
                 return json::Document(
                     json::Builder()
                     .StartDict()
-                    .Key("request_id").Value(static_cast<int>(id))
-                    .Key("error_message").Value("not found")
+                    .Key("request_id"s).Value(static_cast<int>(id))
+                    .Key("error_message"s).Value("not found"s)
                     .EndDict()
                     .Build());
             }
@@ -85,21 +85,21 @@ namespace transport_catalogue {
                 return json::Document(
                     json::Builder()
                     .StartDict()
-                    .Key("buses").Value(buses)
-                    .Key("request_id").Value(static_cast<int>(id))
+                    .Key("buses"s).Value(buses)
+                    .Key("request_id"s).Value(static_cast<int>(id))
                     .EndDict()
                     .Build());
             }
         }
 
-        // получение json-результата по роутеру
+        // РїРѕР»СѓС‡РµРЅРёРµ json-СЂРµР·СѓР»СЊС‚Р°С‚Р° РїРѕ СЂРѕСѓС‚РµСЂСѓ
         json::Document JsonPrinter::TransportRouterNodeMaker(size_t id, transport_catalogue::RouterData data) {
             if (!data._is_founded) {
                 return json::Document(
                     json::Builder()
                     .StartDict()
-                    .Key("request_id").Value(static_cast<int>(id))
-                    .Key("error_message").Value("not found")
+                    .Key("request_id"s).Value(static_cast<int>(id))
+                    .Key("error_message"s).Value("not found"s)
                     .EndDict()
                     .Build());
             }
@@ -112,9 +112,9 @@ namespace transport_catalogue {
                         route_items.push_back(
                             json::Builder()
                             .StartDict()
-                            .Key("type").Value(std::string("Wait"))
-                            .Key("stop_name").Value(std::string(item.GetItemName()))
-                            .Key("time").Value(item.GetItemTime())
+                            .Key("type"s).Value(std::string("Wait"s))
+                            .Key("stop_name"s).Value(std::string(item.GetItemName()))
+                            .Key("time"s).Value(item.GetItemTime())
                             .EndDict()
                             .Build());
                     }
@@ -123,10 +123,10 @@ namespace transport_catalogue {
                         route_items.push_back(
                             json::Builder()
                             .StartDict()
-                            .Key("type").Value(std::string("Bus"))
-                            .Key("bus").Value(std::string(item.GetItemName()))
-                            .Key("span_count").Value(item.GetItemSpanCount())
-                            .Key("time").Value(item.GetItemTime())
+                            .Key("type"s).Value(std::string("Bus"s))
+                            .Key("bus"s).Value(std::string(item.GetItemName()))
+                            .Key("span_count"s).Value(item.GetItemSpanCount())
+                            .Key("time"s).Value(item.GetItemTime())
                             .EndDict()
                             .Build());
                     }
@@ -135,26 +135,26 @@ namespace transport_catalogue {
                 return json::Document(
                     json::Builder()
                     .StartDict()
-                    .Key("request_id").Value(static_cast<int>(id))
-                    .Key("total_time").Value(data._route_time)
-                    .Key("items").Value(route_items)
+                    .Key("request_id"s).Value(static_cast<int>(id))
+                    .Key("total_time"s).Value(data._route_time)
+                    .Key("items"s).Value(route_items)
                     .EndDict()
                     .Build());
             }
         }
 
-        // получение json-результата по рендеру
+        // РїРѕР»СѓС‡РµРЅРёРµ json-СЂРµР·СѓР»СЊС‚Р°С‚Р° РїРѕ СЂРµРЅРґРµСЂСѓ
         json::Document JsonPrinter::MapRendererNodeMaker(size_t id, transport_catalogue::RendererData data) {
             return json::Document(
                 json::Builder()
                 .StartDict()
-                .Key("map").Value(data._svg_line)
-                .Key("request_id").Value(static_cast<int>(id))
+                .Key("map"s).Value(data._svg_line)
+                .Key("request_id"s).Value(static_cast<int>(id))
                 .EndDict()
                 .Build());
         }
 
-        // вывод принтера
+        // РІС‹РІРѕРґ РїСЂРёРЅС‚РµСЂР°
         JsonPrinter& JsonPrinter::PrintResult(std::ostream& out) {
             json::PrintContext context(out, 4, 0);
             if (_json_base.size() != 0) {
@@ -167,6 +167,12 @@ namespace transport_catalogue {
             return *this;
         }
 
+        // РѕС‡РёСЃС‚РёС‚СЊ Р±Р°Р·Сѓ РїСЂРёРЅС‚РµСЂР° СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ
+        JsonPrinter& JsonPrinter::ClearPrinterBase() {
+            _json_base.clear();
+            return *this;
+        }
+
         // ---------------------------------------- class JsonPrinter END -----------------------------------------------
 
 
@@ -176,13 +182,44 @@ namespace transport_catalogue {
             : _input(in), _output(out) {
         }
 
-        JsonReader& JsonReader::single_block_process() {
-            // читаем поток
+        JsonReader::JsonReader(std::istream& in, std::ostream& out, ProgramMode mode)
+            : _input(in), _output(out) {
+
+            switch (mode)
+            {
+            case transport_catalogue::json_reader::test_mode:
+                this->test_mode();
+                break;
+            case transport_catalogue::json_reader::simple_mode:
+                this->single_block_mode();
+                break;
+            case transport_catalogue::json_reader::make_base_mode:
+                this->make_base_mode();
+                break;
+            case transport_catalogue::json_reader::make_base_mode_vo_router:
+                this->make_base_mode_vo_router();
+                break;
+            case transport_catalogue::json_reader::process_requests_mode:
+                this->process_requests_mode();
+                break;
+            default:
+                break;
+            }
+        }
+        // Р·Р°РїСѓСЃРє СЂР°Р±РѕС‚С‹ РІ СЂРµР¶РёРјРµ РѕР¶РёРґР°РЅРёСЏ Рё РІС‹Р·РѕРІР° С‚РµСЃС‚РѕРІ
+        JsonReader& JsonReader::test_mode() {
+            std::cerr << "Test mode is wait to execution command"sv << std::endl;
+            return *this;
+        }
+
+        // Р·Р°РїСѓСЃРє СЂР°Р±РѕС‚С‹ РІ СЂРµР¶РёРјРµ РѕР±СЂР°Р±РѕС‚РєРё РѕРґРЅРѕРіРѕ Р±Р»РѕРєР°. РЎРїСЂРёРЅС‚ 12. РС‚РѕРіРѕРІРѕРµ
+        JsonReader& JsonReader::single_block_mode() {
+            // С‡РёС‚Р°РµРј РїРѕС‚РѕРє
             auto json_request = JsonBlockReading();
 
             if (json_request.has_value()) {
-                // запускаем обработку блока
-                RequestProcessSplitter(json_request.value()).PrintResultProcessor(_output);
+                // Р·Р°РїСѓСЃРєР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ Р±Р»РѕРєР°
+                SimpleModeSplitter(json_request.value()).PrintResultProcessor(_output);
             }
             else {
                 throw std::invalid_argument("JSON Data is Empty");
@@ -190,18 +227,83 @@ namespace transport_catalogue {
             return *this;
         }
 
-        //загрузка JSON из переданной строки
+        // Р·Р°РїСѓСЃРє СЂР°Р±РѕС‚С‹ РІ СЂРµР¶РёРјРµ РѕР±СЂР°Р±РѕС‚РєРё make_base. РЎРїСЂРёРЅС‚ 14. РС‚РѕРіРѕРІРѕРµ 3.
+        JsonReader& JsonReader::make_base_mode() {
+            // С‡РёС‚Р°РµРј РїРѕС‚РѕРє
+            auto json_request = JsonBlockReading();
+
+            if (json_request.has_value()) {
+                // Р·Р°РїСѓСЃРєР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ Р±Р»РѕРєР°
+                MakeBaseModeSplitter(json_request.value());
+            }
+            else {
+                throw std::invalid_argument("JSON Data is Empty");
+            }
+            return *this;
+        }
+
+        // Р·Р°РїСѓСЃРє СЂР°Р±РѕС‚С‹ РІ СЂРµР¶РёРјРµ РѕР±СЂР°Р±РѕС‚РєРё make_base Р±РµР· СЂРѕСѓС‚РµСЂР°. РЎРїСЂРёРЅС‚ 14. РС‚РѕРіРѕРІРѕРµ 1.
+        JsonReader& JsonReader::make_base_mode_vo_router() {
+            // С‡РёС‚Р°РµРј РїРѕС‚РѕРє
+            auto json_request = JsonBlockReading();
+
+            if (json_request.has_value()) {
+                // Р·Р°РїСѓСЃРєР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ Р±Р»РѕРєР°
+                MakeBaseModeVORSplitter(json_request.value());
+            }
+            else {
+                throw std::invalid_argument("JSON Data is Empty");
+            }
+            return *this;
+        }
+
+        // Р·Р°РїСѓСЃРє СЂР°Р±РѕС‚С‹ РІ СЂРµР¶РёРјРµ РѕР±СЂР°Р±РѕС‚РєРё process_requests. РЎРїСЂРёРЅС‚ 14. РС‚РѕРіРѕРІРѕРµ 1.
+        JsonReader& JsonReader::process_requests_mode() {
+            // С‡РёС‚Р°РµРј РїРѕС‚РѕРє
+            auto json_request = JsonBlockReading();
+
+            if (json_request.has_value()) {
+                // Р·Р°РїСѓСЃРєР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ Р±Р»РѕРєР°
+                RequestProcessModeSplitter(json_request.value()).PrintResultProcessor(_output);
+            }
+            else {
+                throw std::invalid_argument("JSON Data is Empty");
+            }
+            return *this;
+        }
+
+        // СЃР±СЂРѕСЃРёС‚СЊ СЃРѕСЃС‚РѕСЏРЅРёРµ РІСЃРµС… РєРѕРјРїРѕРЅРµРЅС‚РѕРІ РїСЂРѕРіСЂР°РјРјС‹, РїСЂРёРјРµРЅСЏРµС‚СЃСЏ РґР»СЏ Р±Р»РѕРєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ
+        JsonReader& JsonReader::reset_all_modules() {
+            _json_dicts.clear();                       // РѕС‡РёС‰Р°РµРј РёСЃС‚РѕСЂРёСЋ РїРѕР»СѓС‡РµРЅРЅС‹С… JSON-Р±Р»РѕРєРѕРІ
+            _json_requests_history.clear();            // РѕС‡РёС‰Р°РµРј РёСЃС‚РѕСЂРёСЏ РїРѕСЃС‚СѓРїРёРІС€РёС… Р·Р°РїСЂРѕСЃРѕРІ
+            _current_json_requests.clear();            // РѕС‡РёС‰Р°РµРј РѕС‡РµСЂРµРґСЊ С‚РµРєСѓС‰РёС… Р·Р°РїСЂРѕСЃС‚РѕРІ
+            _printer.ClearPrinterBase();               // РѕС‡РёС‰Р°РµРј Р±Р°Р·Сѓ РїСЂРёРЅС‚РµСЂР°
+            _handler.SetModulesToDefault();            // РѕР±РЅСѓР»СЏРµРј РѕР±СЂР°Р±РѕС‚С‡РёРє Рё РєР°С‚Р°Р»РѕРі
+            return *this;
+        }
+
+        //Р·Р°РіСЂСѓР·РєР° JSON РёР· РїРµСЂРµРґР°РЅРЅРѕР№ СЃС‚СЂРѕРєРё
         json::Node JsonReader::LoadJson(const std::string& s) {
             std::istringstream strm(s);
             return json::Load(strm).GetRoot();
         }
 
-        // загрузка JSON из переданного потока
+        // Р·Р°РіСЂСѓР·РєР° JSON РёР· РїРµСЂРµРґР°РЅРЅРѕРіРѕ РїРѕС‚РѕРєР°
         json::Node JsonReader::LoadJson(std::istream& input) {
             return json::Load(input).GetRoot();
         }
 
-        // парсинг запроса на добавление маршрута
+        // РїР°СЂСЃРёРЅРі РёРјРµРЅРё С„Р°Р№Р»Р° РґР»СЏ СЃРµСЂРёР°Р»РёР·Р°С†РёРё
+        std::string JsonReader::FileNameParser(const json::Dict& node) {
+            if (node.count("file") != 0) {
+                if (node.at("file").IsString()) {
+                    return node.at("file").AsString();
+                }
+            }
+        }
+
+
+        // РїР°СЂСЃРёРЅРі Р·Р°РїСЂРѕСЃР° РЅР° РґРѕР±Р°РІР»РµРЅРёРµ РјР°СЂС€СЂСѓС‚Р°
         void JsonReader::AddRouteParser(transport_catalogue::JsonRequestPtr request, const json::Dict& node) {
             if (node.count("is_roundtrip") != 0) {
                 if (node.at("is_roundtrip").AsBool()) {
@@ -220,7 +322,7 @@ namespace transport_catalogue {
             }
         }
 
-        // парсинг запроса на добавление остановки
+        // РїР°СЂСЃРёРЅРі Р·Р°РїСЂРѕСЃР° РЅР° РґРѕР±Р°РІР»РµРЅРёРµ РѕСЃС‚Р°РЅРѕРІРєРё
         void JsonReader::AddStopParser(transport_catalogue::JsonRequestPtr request, const json::Dict& node) {
             if (node.count("latitude") != 0) {
                 request->_coord.lat = node.at("latitude").AsDouble();
@@ -239,15 +341,15 @@ namespace transport_catalogue {
 
         }
 
-        // парсинг запроса на добавление информации
+        // РїР°СЂСЃРёРЅРі Р·Р°РїСЂРѕСЃР° РЅР° РґРѕР±Р°РІР»РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё
         void JsonReader::BaseRequestParser(transport_catalogue::JsonRequestPtr request, const json::Dict& node) {
 
-            // записываем номер маршрута или название остановки
+            // Р·Р°РїРёСЃС‹РІР°РµРј РЅРѕРјРµСЂ РјР°СЂС€СЂСѓС‚Р° РёР»Рё РЅР°Р·РІР°РЅРёРµ РѕСЃС‚Р°РЅРѕРІРєРё
             if (node.count("name") != 0) {
                 request->_name = node.at("name").AsString();
             }
 
-            // определяем тип запроса и парсим согласно типа
+            // РѕРїСЂРµРґРµР»СЏРµРј С‚РёРї Р·Р°РїСЂРѕСЃР° Рё РїР°СЂСЃРёРј СЃРѕРіР»Р°СЃРЅРѕ С‚РёРїР°
             if (node.count("type") != 0) {
                 if (node.at("type").AsString() == "Bus") {
                     request->_type = transport_catalogue::RequestType::add_route;
@@ -262,29 +364,29 @@ namespace transport_catalogue {
             }
         }
 
-        // парсинг запроса на получение информации
+        // РїР°СЂСЃРёРЅРі Р·Р°РїСЂРѕСЃР° РЅР° РїРѕР»СѓС‡РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё
         void JsonReader::StatRequestParser(transport_catalogue::JsonRequestPtr request, const json::Dict& node) {
-            // записываем id запроса
+            // Р·Р°РїРёСЃС‹РІР°РµРј id Р·Р°РїСЂРѕСЃР°
             if (node.count("id") != 0) {
                 request->_id = node.at("id").AsInt();
             }
 
-            // записываем номер маршрута или название остановки
+            // Р·Р°РїРёСЃС‹РІР°РµРј РЅРѕРјРµСЂ РјР°СЂС€СЂСѓС‚Р° РёР»Рё РЅР°Р·РІР°РЅРёРµ РѕСЃС‚Р°РЅРѕРІРєРё
             if (node.count("name") != 0) {
                 request->_name = node.at("name").AsString();
             }
 
-            // записываем начальную остановку для роутинга пути
+            // Р·Р°РїРёСЃС‹РІР°РµРј РЅР°С‡Р°Р»СЊРЅСѓСЋ РѕСЃС‚Р°РЅРѕРІРєСѓ РґР»СЏ СЂРѕСѓС‚РёРЅРіР° РїСѓС‚Рё
             if (node.count("from") != 0) {
                 request->_from = node.at("from").AsString();
             }
 
-            // записываем конечную остановку для роутинга пути
+            // Р·Р°РїРёСЃС‹РІР°РµРј РєРѕРЅРµС‡РЅСѓСЋ РѕСЃС‚Р°РЅРѕРІРєСѓ РґР»СЏ СЂРѕСѓС‚РёРЅРіР° РїСѓС‚Рё
             if (node.count("to") != 0) {
                 request->_to = node.at("to").AsString();
             }
 
-            // определяем тип запроса и парсим согласно типа
+            // РѕРїСЂРµРґРµР»СЏРµРј С‚РёРї Р·Р°РїСЂРѕСЃР° Рё РїР°СЂСЃРёРј СЃРѕРіР»Р°СЃРЅРѕ С‚РёРїР°
             if (node.count("type") != 0) {
                 if (node.at("type").AsString() == "Bus") {
                     request->_key = "Bus";
@@ -306,7 +408,7 @@ namespace transport_catalogue {
             request->_type = transport_catalogue::RequestType::stat_info;
         }
 
-        // парсинг настрек рендера карт
+        // РїР°СЂСЃРёРЅРі РЅР°СЃС‚СЂРµРє СЂРµРЅРґРµСЂР° РєР°СЂС‚
         void JsonReader::RendererSetupParser(transport_catalogue::map_renderer::RendererSettings& settings, const json::Dict& node) {
             for (auto& item : node) {
                 if (item.first == "width"s)
@@ -395,7 +497,7 @@ namespace transport_catalogue {
             }
         }
 
-        // парсинг настроек роутера маршрутов
+        // РїР°СЂСЃРёРЅРі РЅР°СЃС‚СЂРѕРµРє СЂРѕСѓС‚РµСЂР° РјР°СЂС€СЂСѓС‚РѕРІ
         void JsonReader::RouterSetupParser(transport_catalogue::router::RouterSettings& settings, const json::Dict& node) {
             for (auto& item : node) {
                 if (item.first == "bus_wait_time"s)
@@ -413,81 +515,85 @@ namespace transport_catalogue {
             }
         }
 
-        // обработка блоков загрузки информации
+        // РѕР±СЂР°Р±РѕС‚РєР° Р±Р»РѕРєРѕРІ Р·Р°РіСЂСѓР·РєРё РёРЅС„РѕСЂРјР°С†РёРё
         JsonReader& JsonReader::BaseRequestProcessor(const json::Array& base_requests) {
-            // парсим каждый запрос
+            // РїР°СЂСЃРёРј РєР°Р¶РґС‹Р№ Р·Р°РїСЂРѕСЃ
             for (size_t i = 0; i != base_requests.size(); i++)
             {
                 transport_catalogue::JsonRequest base_request;
-                // создаём и парсим новый запрос на добавление информации в базу
+                // СЃРѕР·РґР°С‘Рј Рё РїР°СЂСЃРёРј РЅРѕРІС‹Р№ Р·Р°РїСЂРѕСЃ РЅР° РґРѕР±Р°РІР»РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё РІ Р±Р°Р·Сѓ
                 BaseRequestParser(&base_request, base_requests[i].AsDict());
-                // записываем запрос в историю запросов
+                // Р·Р°РїРёСЃС‹РІР°РµРј Р·Р°РїСЂРѕСЃ РІ РёСЃС‚РѕСЂРёСЋ Р·Р°РїСЂРѕСЃРѕРІ
                 transport_catalogue::JsonRequest& ptr = _json_requests_history.emplace_back(std::move(base_request));
-                // записываем указатель на запрос в очередь текущих запросов к обработке
+                // Р·Р°РїРёСЃС‹РІР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° Р·Р°РїСЂРѕСЃ РІ РѕС‡РµСЂРµРґСЊ С‚РµРєСѓС‰РёС… Р·Р°РїСЂРѕСЃРѕРІ Рє РѕР±СЂР°Р±РѕС‚РєРµ
                 _current_json_requests[ptr._type].push_back(&ptr);
             }
 
             if (_current_json_requests.count(transport_catalogue::add_stop)) {
-                // добавляем остановки в базу каатлога, после загрузки остановок автоматом добавятся дистанции
+                // РґРѕР±Р°РІР»СЏРµРј РѕСЃС‚Р°РЅРѕРІРєРё РІ Р±Р°Р·Сѓ РєР°Р°С‚Р»РѕРіР°, РїРѕСЃР»Рµ Р·Р°РіСЂСѓР·РєРё РѕСЃС‚Р°РЅРѕРІРѕРє Р°РІС‚РѕРјР°С‚РѕРј РґРѕР±Р°РІСЏС‚СЃСЏ РґРёСЃС‚Р°РЅС†РёРё
                 _handler.AddStopsProcess(_current_json_requests.at(transport_catalogue::add_stop));
             }
 
             if (_current_json_requests.count(transport_catalogue::add_route)) {
-                // добавляем маршруты в базу каатлога
+                // РґРѕР±Р°РІР»СЏРµРј РјР°СЂС€СЂСѓС‚С‹ РІ Р±Р°Р·Сѓ РєР°Р°С‚Р»РѕРіР°
                 _handler.AddRoutesProcess(_current_json_requests.at(transport_catalogue::add_route));
-            }
+            }   
+
+            // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј С„Р»Р°Рі РіРѕС‚РѕРІРЅРѕСЃС‚Рё Р±Р°Р·С‹ Рє СЂР°Р±РѕС‚Рµ
+            _handler.SetCatalogueDataStatus(READY);
+            
             return *this;
         }
 
-        // обработка блока загрузки настройки рендера
+        // РѕР±СЂР°Р±РѕС‚РєР° Р±Р»РѕРєР° Р·Р°РіСЂСѓР·РєРё РЅР°СЃС‚СЂРѕР№РєРё СЂРµРЅРґРµСЂР°
         JsonReader& JsonReader::RendererSetupProcessor(const json::Dict& renderer_settings) {
             transport_catalogue::map_renderer::RendererSettings settings;
-            // создаём и парсим настройки рендера карт
+            // СЃРѕР·РґР°С‘Рј Рё РїР°СЂСЃРёРј РЅР°СЃС‚СЂРѕР№РєРё СЂРµРЅРґРµСЂР° РєР°СЂС‚
             RendererSetupParser(settings, renderer_settings);
-            // передаем во встроенный обработчик запросов к базе транспортного каталога
+            // РїРµСЂРµРґР°РµРј РІРѕ РІСЃС‚СЂРѕРµРЅРЅС‹Р№ РѕР±СЂР°Р±РѕС‚С‡РёРє Р·Р°РїСЂРѕСЃРѕРІ Рє Р±Р°Р·Рµ С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°
             _handler.SetRedererSettings(std::move(settings)).EnableMapRenderer();
             return *this;
         }
 
-        // обработка блока загрузки настройки роутера
+        // РѕР±СЂР°Р±РѕС‚РєР° Р±Р»РѕРєР° Р·Р°РіСЂСѓР·РєРё РЅР°СЃС‚СЂРѕР№РєРё СЂРѕСѓС‚РµСЂР°
         JsonReader& JsonReader::RouterSetupProcessor(const json::Dict& router_settings) {
             transport_catalogue::router::RouterSettings settings;
-            // создаём и парсим настройки роутера маршрутов
+            // СЃРѕР·РґР°С‘Рј Рё РїР°СЂСЃРёРј РЅР°СЃС‚СЂРѕР№РєРё СЂРѕСѓС‚РµСЂР° РјР°СЂС€СЂСѓС‚РѕРІ
             RouterSetupParser(settings, router_settings);
-            // передаем во встроенный обработчик запросов к базе транспортного каталога
+            // РїРµСЂРµРґР°РµРј РІРѕ РІСЃС‚СЂРѕРµРЅРЅС‹Р№ РѕР±СЂР°Р±РѕС‚С‡РёРє Р·Р°РїСЂРѕСЃРѕРІ Рє Р±Р°Р·Рµ С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°
             _handler.SetRouterSettings(std::move(settings)).EnableTransportRouter();
             return *this;
         }
 
-        // обработка блоков получения информации
+        // РѕР±СЂР°Р±РѕС‚РєР° Р±Р»РѕРєРѕРІ РїРѕР»СѓС‡РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё
         JsonReader& JsonReader::StatsRequestProcessor(const json::Array& stat_requests) {
-            // парсим запросы каждый запрос по очереди
+            // РїР°СЂСЃРёРј Р·Р°РїСЂРѕСЃС‹ РєР°Р¶РґС‹Р№ Р·Р°РїСЂРѕСЃ РїРѕ РѕС‡РµСЂРµРґРё
             for (size_t i = 0; i != stat_requests.size(); i++)
             {
                 transport_catalogue::JsonRequest stat_request;
-                // создаём и парсим новый запрос на добавление информации в базу
+                // СЃРѕР·РґР°С‘Рј Рё РїР°СЂСЃРёРј РЅРѕРІС‹Р№ Р·Р°РїСЂРѕСЃ РЅР° РїРѕР»СѓС‡РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё РёР· Р±Р°Р·С‹
                 StatRequestParser(&stat_request, stat_requests[i].AsDict());
 
-                // обрабатываем запросы на получения информации на лету без записи в базу текучки
+                // РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј Р·Р°РїСЂРѕСЃС‹ РЅР° РїРѕР»СѓС‡РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё РЅР° Р»РµС‚Сѓ Р±РµР· Р·Р°РїРёСЃРё РІ Р±Р°Р·Сѓ С‚РµРєСѓС‡РєРё
                 transport_catalogue::JsonRequestPtr request = &(_json_requests_history.emplace_back(std::move(stat_request)));
 
                 if (request->_key == "Bus") {
                     _printer.AddDocument(_printer.RouteReportNodeMaker(
                         request->_id, _handler.GetRouteInfo(request)).GetRoot());
                 }
-                // запросы на выдачу информации по остановкам
+                // Р·Р°РїСЂРѕСЃС‹ РЅР° РІС‹РґР°С‡Сѓ РёРЅС„РѕСЂРјР°С†РёРё РїРѕ РѕСЃС‚Р°РЅРѕРІРєР°Рј
                 else if (request->_key == "Stop") {
                     _printer.AddDocument(_printer.StopReportNodeMaker(
                         request->_id, _handler.GetStopInfo(request)).GetRoot());
                 }
-                // запрос по роутингу маршрутов
+                // Р·Р°РїСЂРѕСЃ РїРѕ СЂРѕСѓС‚РёРЅРіСѓ РјР°СЂС€СЂСѓС‚РѕРІ
                 else if (request->_key == "Route") {
 
                     _printer.AddDocument(_printer.TransportRouterNodeMaker(
                         request->_id, _handler.GetRouterData(request)).GetRoot());
 
                 }
-                // запросы по рисованию карты маршрутов
+                // Р·Р°РїСЂРѕСЃС‹ РїРѕ СЂРёСЃРѕРІР°РЅРёСЋ РєР°СЂС‚С‹ РјР°СЂС€СЂСѓС‚РѕРІ
                 else {
                     _printer.AddDocument(_printer.MapRendererNodeMaker(
                         request->_id, _handler.GetRendererData(request)).GetRoot());
@@ -497,37 +603,37 @@ namespace transport_catalogue {
             return *this;
         }
 
-        // печать информации после обработки вывода
+        // РїРµС‡Р°С‚СЊ РёРЅС„РѕСЂРјР°С†РёРё РїРѕСЃР»Рµ РѕР±СЂР°Р±РѕС‚РєРё РІС‹РІРѕРґР°
         JsonReader& JsonReader::PrintResultProcessor(std::ostream& output) {
             _printer.PrintResult(output);
             return *this;
         }
 
-        // сплиттер блоков запросов
-        JsonReader& JsonReader::RequestProcessSplitter(const json::Dict& json_request) {
+        // СЃРїР»РёС‚С‚РµСЂ Р±Р»РѕРєРѕРІ Р·Р°РїСЂРѕСЃРѕРІ Р±Р°Р·РѕРІРѕРіРѕ СЂРµР¶РёРјР°
+        JsonReader& JsonReader::SimpleModeSplitter(const json::Dict& json_request) {
 
-            // очищаем текущую очередь запросов
+            // РѕС‡РёС‰Р°РµРј С‚РµРєСѓС‰СѓСЋ РѕС‡РµСЂРµРґСЊ Р·Р°РїСЂРѕСЃРѕРІ
             _current_json_requests.clear();
 
-            // запускаем обработку запросов на загрузку информации
+            // Р·Р°РїСѓСЃРєР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ Р·Р°РїСЂРѕСЃРѕРІ РЅР° Р·Р°РіСЂСѓР·РєСѓ РёРЅС„РѕСЂРјР°С†РёРё
             if (json_request.count("base_requests"))
             {
                 BaseRequestProcessor(json_request.at("base_requests").AsArray());
             }
 
-            // зпускаем обработку запроса на загрузку настроек рендера
+            // Р·РїСѓСЃРєР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ Р·Р°РїСЂРѕСЃР° РЅР° Р·Р°РіСЂСѓР·РєСѓ РЅР°СЃС‚СЂРѕРµРє СЂРµРЅРґРµСЂР°
             if (json_request.count("render_settings")) 
             {
                 RendererSetupProcessor(json_request.at("render_settings").AsDict());
             }
 
-            // зпускаем обработку запроса на загрузку настроек роутера
+            // Р·РїСѓСЃРєР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ Р·Р°РїСЂРѕСЃР° РЅР° Р·Р°РіСЂСѓР·РєСѓ РЅР°СЃС‚СЂРѕРµРє СЂРѕСѓС‚РµСЂР°
             if (json_request.count("routing_settings")) 
             {
                 RouterSetupProcessor(json_request.at("routing_settings").AsDict());
             }
 
-            // запускаем обработку запросов на выдачу информации
+            // Р·Р°РїСѓСЃРєР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ Р·Р°РїСЂРѕСЃРѕРІ РЅР° РІС‹РґР°С‡Сѓ РёРЅС„РѕСЂРјР°С†РёРё
             if (json_request.count("stat_requests")) 
             {
                 StatsRequestProcessor(json_request.at("stat_requests").AsArray());
@@ -535,13 +641,116 @@ namespace transport_catalogue {
             return *this;
         }
 
+        // СЃРїР»РёС‚С‚РµСЂ Р±Р»РѕРєРѕРІ Р·Р°РїСЂРѕСЃРѕРІ Р±Р°Р·РѕРІРѕРіРѕ СЂРµР¶РёРјР° Р±РµР· Р·Р°РїРёСЃРё РґР°РЅРЅС‹С… СЂРѕСѓС‚РµСЂР°
+        JsonReader& JsonReader::MakeBaseModeSplitter(const json::Dict& json_request) {
+
+            // РѕС‡РёС‰Р°РµРј С‚РµРєСѓС‰СѓСЋ РѕС‡РµСЂРµРґСЊ Р·Р°РїСЂРѕСЃРѕРІ
+            _current_json_requests.clear();
+
+            // Р·Р°РїСѓСЃРєР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ Р·Р°РїСЂРѕСЃРѕРІ РЅР° Р·Р°РіСЂСѓР·РєСѓ РёРЅС„РѕСЂРјР°С†РёРё
+            if (json_request.count("base_requests"))
+            {
+                BaseRequestProcessor(json_request.at("base_requests").AsArray());
+            }
+
+            // Р·РїСѓСЃРєР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ Р·Р°РїСЂРѕСЃР° РЅР° Р·Р°РіСЂСѓР·РєСѓ РЅР°СЃС‚СЂРѕРµРє СЂРµРЅРґРµСЂР°
+            if (json_request.count("render_settings"))
+            {
+                RendererSetupProcessor(json_request.at("render_settings").AsDict());
+            }
+
+            // Р·РїСѓСЃРєР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ Р·Р°РїСЂРѕСЃР° РЅР° Р·Р°РіСЂСѓР·РєСѓ РЅР°СЃС‚СЂРѕРµРє СЂРѕСѓС‚РµСЂР°
+            if (json_request.count("routing_settings"))
+            {
+                RouterSetupProcessor(json_request.at("routing_settings").AsDict());
+            }
+
+            // РїРѕСЃР»Рµ РѕР±СЂР°Р±РѕС‚РєРё РІСЃРµС… base_requests РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ Р·Р°РїСѓСЃРєР°РµРј РёРЅРёС†РёР°Р»РёР·Р°С†РёСЋ СЂРѕСѓС‚РµСЂР° 
+            _handler.EnableRouterGraphs();  // РїСЂРё РґР°РЅРЅРѕР№ Р°РєС‚РёРІР°С†РёРё Р·Р°РіСЂСѓР¶Р°СЋС‚СЃСЏ РґР°РЅРЅС‹Рµ РїРѕ РіСЂР°С„Р°Рј
+
+            // РѕРїСЂРµРґРµР»СЏРµРј РѕС‚РєСЂС‹С‚РёРµ С„Р°Р№Р»Р° РґР»СЏ РІС‹РіСЂСѓР·РєРё СЃРµСЂРёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С…
+            if (json_request.count("serialization_settings"))
+            {
+                // РѕС‚РєСЂС‹РІР°РµРј С„Р°Р№Р» РґР»СЏ РІС‹РіСЂСѓР·РєРё Р±Р°Р·С‹
+                std::ofstream output(FileNameParser(
+                    json_request.at("serialization_settings").AsDict()), std::ios::binary);
+
+                // СЃРµСЂРёР°Р»РёР·РёСЂСѓРµРј РґР°РЅРЅС‹Рµ РІ РїРѕС‚РѕРє
+                assert(_handler.SerializeDataToOstream(output));
+            }
+            return *this;
+        }
+
+        // СЃРїР»РёС‚С‚РµСЂ Р±Р»РѕРєРѕРІ Р·Р°РїСЂРѕСЃРѕРІ Р±Р°Р·РѕРІРѕРіРѕ СЂРµР¶РёРјР° Р±РµР· Р·Р°РїРёСЃРё РґР°РЅРЅС‹С… СЂРѕСѓС‚РµСЂР°
+        JsonReader& JsonReader::MakeBaseModeVORSplitter(const json::Dict& json_request) {
+
+            // РѕС‡РёС‰Р°РµРј С‚РµРєСѓС‰СѓСЋ РѕС‡РµСЂРµРґСЊ Р·Р°РїСЂРѕСЃРѕРІ
+            _current_json_requests.clear();
+
+            // Р·Р°РїСѓСЃРєР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ Р·Р°РїСЂРѕСЃРѕРІ РЅР° Р·Р°РіСЂСѓР·РєСѓ РёРЅС„РѕСЂРјР°С†РёРё
+            if (json_request.count("base_requests"))
+            {
+                BaseRequestProcessor(json_request.at("base_requests").AsArray());
+            }
+
+            // Р·РїСѓСЃРєР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ Р·Р°РїСЂРѕСЃР° РЅР° Р·Р°РіСЂСѓР·РєСѓ РЅР°СЃС‚СЂРѕРµРє СЂРµРЅРґРµСЂР°
+            if (json_request.count("render_settings"))
+            {
+                RendererSetupProcessor(json_request.at("render_settings").AsDict());
+            }
+
+            // Р·РїСѓСЃРєР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ Р·Р°РїСЂРѕСЃР° РЅР° Р·Р°РіСЂСѓР·РєСѓ РЅР°СЃС‚СЂРѕРµРє СЂРѕСѓС‚РµСЂР°
+            if (json_request.count("routing_settings"))
+            {
+                RouterSetupProcessor(json_request.at("routing_settings").AsDict());
+            }
+
+            // РѕРїСЂРµРґРµР»СЏРµРј РѕС‚РєСЂС‹С‚РёРµ С„Р°Р№Р»Р° РґР»СЏ РІС‹РіСЂСѓР·РєРё СЃРµСЂРёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С…
+            if (json_request.count("serialization_settings"))
+            {
+                // РѕС‚РєСЂС‹РІР°РµРј С„Р°Р№Р» РґР»СЏ РІС‹РіСЂСѓР·РєРё Р±Р°Р·С‹
+                std::ofstream output(FileNameParser(
+                    json_request.at("serialization_settings").AsDict()), std::ios::binary);
+
+                // СЃРµСЂРёР°Р»РёР·РёСЂСѓРµРј РґР°РЅРЅС‹Рµ РІ РїРѕС‚РѕРє
+                assert(_handler.SerializeDataToOstream(output));
+            }
+            return *this;
+        }
+
+        // СЃРїР»РёС‚С‚РµСЂ Р±Р»РѕРєРѕРІ Р·Р°РїСЂРѕСЃРѕРІ РЅР° РїРѕР»СѓС‡РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё РїРѕСЃР»Рµ РґРµСЃРµСЂРёР°Р»РёР·Р°С†РёРё РґР°РЅРЅС‹С…
+        JsonReader& JsonReader::RequestProcessModeSplitter(const json::Dict& json_request) {
+
+            // РѕС‡РёС‰Р°РµРј С‚РµРєСѓС‰СѓСЋ РѕС‡РµСЂРµРґСЊ Р·Р°РїСЂРѕСЃРѕРІ
+            _current_json_requests.clear();
+
+            // РѕРїСЂРµРґРµР»СЏРµРј РѕС‚РєСЂС‹С‚РёРµ С„Р°Р№Р»Р° РґР»СЏ СЃС‡РёС‚С‹РІР°РЅРёСЏ СЃРµСЂРёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С… Р±Р°Р·С‹
+            if (json_request.count("serialization_settings"))
+            {
+                // РѕС‚РєСЂС‹РІР°РµРј С„Р°Р№Р» РґР»СЏ Р·Р°РіСЂСѓР·Р°РєРё Р±Р°Р·С‹
+                std::ifstream input(FileNameParser(
+                    json_request.at("serialization_settings").AsDict()), std::ios::binary);
+
+                // РґРµСЃРµСЂРёР°Р»РёР·РёСЂСѓРµРј РґР°РЅРЅС‹Рµ РёР· РїРѕС‚РѕРєР° Рё Р·Р°РїРѕР»РЅСЏРµРј Р±Р°Р·Сѓ
+                assert(_handler.DeserializeDataFromIstream(input));
+            }
+
+            // Р·Р°РїСѓСЃРєР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ Р·Р°РїСЂРѕСЃРѕРІ РЅР° РІС‹РґР°С‡Сѓ РёРЅС„РѕСЂРјР°С†РёРё
+            if (json_request.count("stat_requests"))
+            {
+                StatsRequestProcessor(json_request.at("stat_requests").AsArray());
+            }
+            return *this;
+        }
+
+        // С‡С‚РµРЅРёРµ JSON Р±Р»РѕРєР° РёР· РїРѕС‚РѕРєР°
         std::optional<json::Dict> JsonReader::JsonBlockReading() {
             try
             {
-                // пробуем считать поток
+                // РїСЂРѕР±СѓРµРј СЃС‡РёС‚Р°С‚СЊ РїРѕС‚РѕРє
                 json::Node result = LoadJson(_input);
                 if (result.IsDict()) {
-                    // если поток прочитан и результат является словарем
+                    // РµСЃР»Рё РїРѕС‚РѕРє РїСЂРѕС‡РёС‚Р°РЅ Рё СЂРµР·СѓР»СЊС‚Р°С‚ СЏРІР»СЏРµС‚СЃСЏ СЃР»РѕРІР°СЂРµРј
                     return result.AsDict();
                 }
                 else {

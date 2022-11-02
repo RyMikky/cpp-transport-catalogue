@@ -1,14 +1,15 @@
-/////////////////////////////////////////////////////////////////////////////////////////////////
+п»ї/////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                             //
 //        class Request Handler                                                                //
-//        Обобщающий модуль-класс - связывает собой каталог, рендер и маршрутизатор            //
-//        Основной функционал - выполнение запросов к различным элементам програмы.            //
-//        Требования и зависимости:                                                            //
-//           1. domain.h - общая библиотека структур для работы программы                      //
-//           2. transport_catalogue.h - модуль транспортного каталога                          //
-//           3. transport_router.h - модуль роутера маршрутов                                  //
-//           4. map_renderer.h - модуль визуализации карт                                      //
-//           5. C++17 (STL)                                                                    //
+//        РћР±РѕР±С‰Р°СЋС‰РёР№ РјРѕРґСѓР»СЊ-РєР»Р°СЃСЃ - СЃРІСЏР·С‹РІР°РµС‚ СЃРѕР±РѕР№ РІСЃРµ РјРѕРґСѓР»Рё СЃРёСЃС‚РµРјС‹.                        //
+//        РћСЃРЅРѕРІРЅРѕР№ С„СѓРЅРєС†РёРѕРЅР°Р» - РІС‹РїРѕР»РЅРµРЅРёРµ Р·Р°РїСЂРѕСЃРѕРІ Рє СЂР°Р·Р»РёС‡РЅС‹Рј СЌР»РµРјРµРЅС‚Р°Рј РїСЂРѕРіСЂР°РјС‹.            //
+//        РўСЂРµР±РѕРІР°РЅРёСЏ Рё Р·Р°РІРёСЃРёРјРѕСЃС‚Рё:                                                            //
+//           1. domain.h - РѕР±С‰Р°СЏ Р±РёР±Р»РёРѕС‚РµРєР° СЃС‚СЂСѓРєС‚СѓСЂ РґР»СЏ СЂР°Р±РѕС‚С‹ РїСЂРѕРіСЂР°РјРјС‹                      //
+//           2. transport_catalogue.h - РјРѕРґСѓР»СЊ С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°                          //
+//           3. transport_router.h - РјРѕРґСѓР»СЊ СЂРѕСѓС‚РµСЂР° РјР°СЂС€СЂСѓС‚РѕРІ                                  //
+//           4. serialization.h - РјРѕРґСѓР»СЊ СЃРµСЂРёР°Р»РёР·Р°С†РёРё РґР°РЅРЅС‹С…                                   //
+//           5. map_renderer.h - РјРѕРґСѓР»СЊ РІРёР·СѓР°Р»РёР·Р°С†РёРё РєР°СЂС‚                                      //
+//           6. C++17 (STL)                                                                    //
 //                                                                                             //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -16,10 +17,11 @@
 #pragma once
 #include <iostream>
 
-#include "transport_catalogue.h"                       // модуль транспортного каталога
-#include "map_renderer.h"                              // модуль визуализации
-#include "transport_router.h"                          // модуль роутинга маршрутов
-#include "domain.h"                                    // модуль основных структур
+#include "transport_catalogue.h"                       // РјРѕРґСѓР»СЊ С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°
+#include "transport_router.h"                          // РјРѕРґСѓР»СЊ СЂРѕСѓС‚РёРЅРіР° РјР°СЂС€СЂСѓС‚РѕРІ
+#include "serialization.h"                             // РјРѕРґСѓР»СЊ СЃРµСЂРёР°Р»РёР·Р°С†РёРё РґР°РЅРЅС‹С…
+#include "map_renderer.h"                              // РјРѕРґСѓР»СЊ РІРёР·СѓР°Р»РёР·Р°С†РёРё
+#include "domain.h"                                    // РјРѕРґСѓР»СЊ РѕСЃРЅРѕРІРЅС‹С… СЃС‚СЂСѓРєС‚СѓСЂ
 
 using namespace std::literals;
 
@@ -31,50 +33,62 @@ namespace transport_catalogue {
 		public:
 			RequestHandler() = default;
 
-			// ----------------------- сеттеры настроек рендера, роутера и обработчика ---------------------------------------------
+			// ----------------------- СЃРµС‚С‚РµСЂС‹ РЅР°СЃС‚СЂРѕРµРє СЂРµРЅРґРµСЂР°, СЂРѕСѓС‚РµСЂР° Рё РѕР±СЂР°Р±РѕС‚С‡РёРєР° ---------------------------------------------
 
-			RequestHandler& SetTransportCatalogue(transport_catalogue::TransportCatalogue&&);        // загрузить сторонний каталог
-			RequestHandler& SetRedererSettings(map_renderer::RendererSettings&&);                    // загрузить настройки рендера
-			RequestHandler& SetRouterSettings(router::RouterSettings&&);                             // загрузить настройки роутера
+			RequestHandler& SetTransportCatalogue(transport_catalogue::TransportCatalogue&&);        // Р·Р°РіСЂСѓР·РёС‚СЊ СЃС‚РѕСЂРѕРЅРЅРёР№ РєР°С‚Р°Р»РѕРі
+			RequestHandler& SetRedererSettings(map_renderer::RendererSettings&&);                    // Р·Р°РіСЂСѓР·РёС‚СЊ РЅР°СЃС‚СЂРѕР№РєРё СЂРµРЅРґРµСЂР°
+			RequestHandler& SetRouterSettings(router::RouterSettings&&);                             // Р·Р°РіСЂСѓР·РёС‚СЊ РЅР°СЃС‚СЂРѕР№РєРё СЂРѕСѓС‚РµСЂР°
+			RequestHandler& SetModulesToDefault();                                   // РїСЂРёРІРµСЃС‚Рё РјРѕРґСѓР»Рё Рє СЃРѕСЃС‚РѕСЏРЅРёСЋ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+			RequestHandler& SetCatalogueDataStatus(
+				transport_catalogue::CatalogueDataStatus);                           // СѓСЃС‚Р°РЅРѕРІРёС‚СЊ С„Р»Р°Рі СЃРѕСЃС‚РѕСЏРЅРёСЏ РґР°РЅРЅС‹С… РєР°С‚Р°Р»РѕРіР°
 
-			// ----------------------- активация всторенных рендара и роутера ------------------------------------------------------
+			// ----------------------- Р°РєС‚РёРІР°С†РёСЏ РІСЃС‚РѕСЂРµРЅРЅС‹С… СЂРµРЅРґР°СЂР°, СЂРѕСѓС‚РµСЂР° Рё СЃРµСЂРёР°Р»РёР·Р°С‚РѕСЂР° ---------------------------------------
 
-			RequestHandler& EnableMapRenderer();                                     // инициализация и первичная настройка рендера
-			RequestHandler& EnableTransportRouter();                                 // инициализация и первичная настройка роутера
+			RequestHandler& EnableMapRenderer();                                     // РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Рё РїРµСЂРІРёС‡РЅР°СЏ РЅР°СЃС‚СЂРѕР№РєР° СЂРµРЅРґРµСЂР°
+			RequestHandler& EnableTransportRouter();                                 // РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Рё РїРµСЂРІРёС‡РЅР°СЏ РЅР°СЃС‚СЂРѕР№РєР° СЂРѕСѓС‚РµСЂР°
+			RequestHandler& EnableRouterGraphs();                                    // РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Рё СЂР°СЃС‡С‘С‚ Р±Р°Р·С‹ РґР°РЅРЅС‹С… СЂРѕСѓС‚РµСЂР°
+			RequestHandler& EnableSerializer();                                      // РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РѕР±СЂР°Р±РѕС‚С‡РёРєР° СЃРµСЂРёР°Р»РёР·Р°С†РёРё
 
-			// ----------------------- обработка запросов на добавление информации -------------------------------------------------
+			// ----------------------- РѕР±СЂР°Р±РѕС‚РєР° Р·Р°РїСЂРѕСЃРѕРІ РЅР° РґРѕР±Р°РІР»РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё -------------------------------------------------
 
-			RequestHandler& AddStop(JsonRequestPtr);                                 // добавить остановку в каталог
-			RequestHandler& AddRoute(JsonRequestPtr);                                // добавить маршрут в каталог
-			RequestHandler& AddDistance(JsonRequestPtr);                             // добавить расстояние в каталог
+			RequestHandler& AddStop(JsonRequestPtr);                                 // РґРѕР±Р°РІРёС‚СЊ РѕСЃС‚Р°РЅРѕРІРєСѓ РІ РєР°С‚Р°Р»РѕРі
+			RequestHandler& AddRoute(JsonRequestPtr);                                // РґРѕР±Р°РІРёС‚СЊ РјР°СЂС€СЂСѓС‚ РІ РєР°С‚Р°Р»РѕРі
+			RequestHandler& AddDistance(JsonRequestPtr);                             // РґРѕР±Р°РІРёС‚СЊ СЂР°СЃСЃС‚РѕСЏРЅРёРµ РІ РєР°С‚Р°Р»РѕРі
 
-			// ----------------------- пакетная обработка запросов на добавление информации ----------------------------------------
+			// ----------------------- РїР°РєРµС‚РЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° Р·Р°РїСЂРѕСЃРѕРІ РЅР° РґРѕР±Р°РІР»РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё ----------------------------------------
 
-			RequestHandler& AddStopsProcess(const std::deque<JsonRequestPtr>&);      // пакетное добавление остановок в каталог
-			RequestHandler& AddRoutesProcess(const std::deque<JsonRequestPtr>&);     // пакетное добавление маршрутов в каталог
+			RequestHandler& AddStopsProcess(const std::deque<JsonRequestPtr>&);      // РїР°РєРµС‚РЅРѕРµ РґРѕР±Р°РІР»РµРЅРёРµ РѕСЃС‚Р°РЅРѕРІРѕРє РІ РєР°С‚Р°Р»РѕРі
+			RequestHandler& AddRoutesProcess(const std::deque<JsonRequestPtr>&);     // РїР°РєРµС‚РЅРѕРµ РґРѕР±Р°РІР»РµРЅРёРµ РјР°СЂС€СЂСѓС‚РѕРІ РІ РєР°С‚Р°Р»РѕРі
 
-			// ----------------------- получение информации из базы по запросу -----------------------------------------------------
+			// ----------------------- РїРѕР»СѓС‡РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё РёР· Р±Р°Р·С‹ РїРѕ Р·Р°РїСЂРѕСЃСѓ -----------------------------------------------------
 			
-			RouteStatPtr GetRouteInfo(JsonRequestPtr);                               // получить информацию по автобусу
-			StopStatPtr GetStopInfo(JsonRequestPtr);                                 // получить информацию по остановке
-			RouterData GetRouterData(JsonRequestPtr);                                // получить информацию маршрутизатора
-			RendererData GetRendererData(JsonRequestPtr);                            // получить карту маршрутов
+			RouteStatPtr GetRouteInfo(JsonRequestPtr);                               // РїРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ РїРѕ Р°РІС‚РѕР±СѓСЃСѓ
+			StopStatPtr GetStopInfo(JsonRequestPtr);                                 // РїРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ РїРѕ РѕСЃС‚Р°РЅРѕРІРєРµ
+			RouterData GetRouterData(JsonRequestPtr);                                // РїРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ РјР°СЂС€СЂСѓС‚РёР·Р°С‚РѕСЂР°
+			RendererData GetRendererData(JsonRequestPtr);                            // РїРѕР»СѓС‡РёС‚СЊ РєР°СЂС‚Сѓ РјР°СЂС€СЂСѓС‚РѕРІ
+
+			// ----------------------- I/O Р±Р»РѕРє СЃРµСЂРёР°Р»РёР·Р°С†РёРё РґР°РЅРЅС‹С… ----------------------------------------------------------------
+
+			bool SerializeDataToOstream(std::ostream&);                              // РѕС‚РїСЂР°РІРёС‚СЊ РґР°РЅРЅС‹Рµ РІ РїРѕС‚РѕРє
+			bool DeserializeDataFromIstream(std::istream&);                          // Р·Р°РіСЂСѓР·РёС‚СЊ РґР°РЅРЅС‹Рµ РёР· РїРѕС‚РѕРєР°
 
 		private:
-			transport_catalogue::TransportCatalogue _catalogue;                      // внутренний каталог
-			std::shared_ptr<router::TransportRouter> _transport_router = nullptr;    // внутренний роутер
-			std::shared_ptr<map_renderer::MapRenderer> _map_renderer = nullptr;      // внутренний рендер
+			transport_catalogue::TransportCatalogue _transport_catalogue;            // РІРЅСѓС‚СЂРµРЅРЅРёР№ РєР°С‚Р°Р»РѕРі
+			std::shared_ptr<router::TransportRouter> _transport_router = nullptr;    // РІРЅСѓС‚СЂРµРЅРЅРёР№ СЂРѕСѓС‚РµСЂ
+			std::shared_ptr<map_renderer::MapRenderer> _map_renderer = nullptr;      // РІРЅСѓС‚СЂРµРЅРЅРёР№ СЂРµРЅРґРµСЂ
+			std::shared_ptr<serial_handler::SerialHandler> _serializer = nullptr;    // РІРЅСѓС‚СЂРµРЅРЅРёР№ СЃРµСЂРёР°Р»Р°Р№Р·РµСЂ
 
-			router::RouterSettings _router_settings;                                 // блок настроек роутера
-			map_renderer::RendererSettings _renderer_settings;                       // блок настроек рендера
+			router::RouterSettings _router_settings;                                 // Р±Р»РѕРє РЅР°СЃС‚СЂРѕРµРє СЂРѕСѓС‚РµСЂР°
+			map_renderer::RendererSettings _renderer_settings;                       // Р±Р»РѕРє РЅР°СЃС‚СЂРѕРµРє СЂРµРЅРґРµСЂР°
 
-			// временное хранилище для sub-запросов на добавление дистанции
+			// РІСЂРµРјРµРЅРЅРѕРµ С…СЂР°РЅРёР»РёС‰Рµ РґР»СЏ sub-Р·Р°РїСЂРѕСЃРѕРІ РЅР° РґРѕР±Р°РІР»РµРЅРёРµ РґРёСЃС‚Р°РЅС†РёРё
 			std::map<std::string, std::map<std::string, int64_t>*> _current_distance_json_requests = {};
 
-			Route MakeRoute(JsonRequestPtr);                                         // создаёт маршрут на основе запроса
-			Stop MakeStop(JsonRequestPtr);                                           // создаёт остановку на основе запроса
+			Route MakeRoute(JsonRequestPtr);                                         // СЃРѕР·РґР°С‘С‚ РјР°СЂС€СЂСѓС‚ РЅР° РѕСЃРЅРѕРІРµ Р·Р°РїСЂРѕСЃР°
+			Stop MakeStop(JsonRequestPtr);                                           // СЃРѕР·РґР°С‘С‚ РѕСЃС‚Р°РЅРѕРІРєСѓ РЅР° РѕСЃРЅРѕРІРµ Р·Р°РїСЂРѕСЃР°
 
-			RequestHandler& AddDistancesProcess();                                   // добавление дистанций в каталог
+			RequestHandler& AddDistancesProcess();                                   // РґРѕР±Р°РІР»РµРЅРёРµ РґРёСЃС‚Р°РЅС†РёР№ РІ РєР°С‚Р°Р»РѕРі
+			
 		};
 
 	} // namespace request_handler

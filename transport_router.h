@@ -1,71 +1,95 @@
-/////////////////////////////////////////////////////////////////////////////////////////////////
+п»ї/////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                             //
 //        class Transport Router                                                               //
-//        Несамостоятельныый модуль-класс - роутер маршрутов.                                  //
-//        Основной функционал - поиск и прокладка маршрута между заданными остановками.        //
-//        Требования и зависимости:                                                            //
-//           1. transport_catalogue.h - база маршщрутов и остановок для роутинга               //
-//           2. router.h - сторонняя библиотека роутинга                                       //
+//        РќРµСЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅС‹С‹Р№ РјРѕРґСѓР»СЊ-РєР»Р°СЃСЃ - СЂРѕСѓС‚РµСЂ РјР°СЂС€СЂСѓС‚РѕРІ.                                  //
+//        РћСЃРЅРѕРІРЅРѕР№ С„СѓРЅРєС†РёРѕРЅР°Р» - РїРѕРёСЃРє Рё РїСЂРѕРєР»Р°РґРєР° РјР°СЂС€СЂСѓС‚Р° РјРµР¶РґСѓ Р·Р°РґР°РЅРЅС‹РјРё РѕСЃС‚Р°РЅРѕРІРєР°РјРё.        //
+//        РўСЂРµР±РѕРІР°РЅРёСЏ Рё Р·Р°РІРёСЃРёРјРѕСЃС‚Рё:                                                            //
+//           1. transport_catalogue.h - Р±Р°Р·Р° РјР°СЂС€С‰СЂСѓС‚РѕРІ Рё РѕСЃС‚Р°РЅРѕРІРѕРє РґР»СЏ СЂРѕСѓС‚РёРЅРіР°               //
+//           2. router.h - СЃС‚РѕСЂРѕРЅРЅСЏСЏ Р±РёР±Р»РёРѕС‚РµРєР° СЂРѕСѓС‚РёРЅРіР°                                       //
 //           3. C++17 (STL)                                                                    //
 //                                                                                             //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "router.h"                                                       // Дополнительная сторонняя библиотека
-#include "transport_catalogue.h"                                          // Требует подключение к транспортному каталогу
+#include "router.h"                                                       // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ СЃС‚РѕСЂРѕРЅРЅСЏСЏ Р±РёР±Р»РёРѕС‚РµРєР°
+#include "transport_catalogue.h"                                          // РўСЂРµР±СѓРµС‚ РїРѕРґРєР»СЋС‡РµРЅРёРµ Рє С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРјСѓ РєР°С‚Р°Р»РѕРіСѓ
 
 #include <vector>
 #include <memory>
 #include <unordered_map>
 #include <string_view>
 
-inline const double METER_IN_KILO = 1000.0;                               // Количество меторв в одном километре
-inline const double MIN_IN_HOUR = 60.0;                                   // Количество минут в одном часу
+inline const double METER_IN_KILO = 1000.0;                               // РљРѕР»РёС‡РµСЃС‚РІРѕ РјРµС‚РѕСЂРІ РІ РѕРґРЅРѕРј РєРёР»РѕРјРµС‚СЂРµ
+inline const double MIN_IN_HOUR = 60.0;                                   // РљРѕР»РёС‡РµСЃС‚РІРѕ РјРёРЅСѓС‚ РІ РѕРґРЅРѕРј С‡Р°СЃСѓ
 
 namespace transport_catalogue {
 
 	namespace router {
 
-		// Структура настрек роутера
+		enum RouterDataStatus {
+			EMPTY, READY, UPLOADED, DOWNLOADED
+		};
+
+		// РЎС‚СЂСѓРєС‚СѓСЂР° РЅР°СЃС‚СЂРµРє СЂРѕСѓС‚РµСЂР°
 		struct RouterSettings {
 
 			RouterSettings() = default;
 			RouterSettings(size_t, double);
 
-			RouterSettings& SetBusWaitTime(size_t);                       // Задать время ожидания автобуса
-			RouterSettings& SetBusVelocity(double);                       // Задать скорость движения автобуса
-			
-			size_t GetBusWaitTime() const;                                // Получить время ожидания автобуса
-			double GetBusVelocity() const;                                // Получить скорость движения автобуса
+			bool IsDefault() const;                                       // РІРѕР·РІСЂР°С‰Р°РµС‚ С„Р»Р°Рі С‚РёРїР° РЅР°СЃС‚СЂРѕРµРє
 
-			size_t _bus_wait_time = {};                                   // Время ожидания подхода автобуса
-			double _bus_velocity = {};                                    // Скорость движения автобуса в км/ч
+			RouterSettings& SetBusWaitTime(size_t);                       // Р—Р°РґР°С‚СЊ РІСЂРµРјСЏ РѕР¶РёРґР°РЅРёСЏ Р°РІС‚РѕР±СѓСЃР°
+			RouterSettings& SetBusVelocity(double);                       // Р—Р°РґР°С‚СЊ СЃРєРѕСЂРѕСЃС‚СЊ РґРІРёР¶РµРЅРёСЏ Р°РІС‚РѕР±СѓСЃР°
+			
+			size_t GetBusWaitTime() const;                                // РџРѕР»СѓС‡РёС‚СЊ РІСЂРµРјСЏ РѕР¶РёРґР°РЅРёСЏ Р°РІС‚РѕР±СѓСЃР°
+			double GetBusVelocity() const;                                // РџРѕР»СѓС‡РёС‚СЊ СЃРєРѕСЂРѕСЃС‚СЊ РґРІРёР¶РµРЅРёСЏ Р°РІС‚РѕР±СѓСЃР°
+
+			size_t _bus_wait_time = {};                                   // Р’СЂРµРјСЏ РѕР¶РёРґР°РЅРёСЏ РїРѕРґС…РѕРґР° Р°РІС‚РѕР±СѓСЃР°
+			double _bus_velocity = {};                                    // РЎРєРѕСЂРѕСЃС‚СЊ РґРІРёР¶РµРЅРёСЏ Р°РІС‚РѕР±СѓСЃР° РІ РєРј/С‡
+			bool _IsDefault = true;                                       // Р¤Р»Р°Рі Р±Р°Р·РѕРІС‹С… РЅР°СЃС‚СЂРѕРµРє
 		};
 
 		class TransportRouter {
 		private:
-			transport_catalogue::TransportCatalogue& _catalogue;
+			transport_catalogue::TransportCatalogue& _transport_catalogue;
 		public:
 			TransportRouter() = default;
-			TransportRouter(transport_catalogue::TransportCatalogue&);                                  // конструктор для вызова из обработчика запросов
-			TransportRouter(transport_catalogue::TransportCatalogue&, const RouterSettings&);           // конструктор для вызова из обработчика запросов
-			TransportRouter(transport_catalogue::TransportCatalogue&, RouterSettings&&);                // конструктор для вызова из обработчика запросов
+			TransportRouter(transport_catalogue::TransportCatalogue&);                                  // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ РІС‹Р·РѕРІР° РёР· РѕР±СЂР°Р±РѕС‚С‡РёРєР° Р·Р°РїСЂРѕСЃРѕРІ
+			TransportRouter(transport_catalogue::TransportCatalogue&, const RouterSettings&);           // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ РІС‹Р·РѕРІР° РёР· РѕР±СЂР°Р±РѕС‚С‡РёРєР° Р·Р°РїСЂРѕСЃРѕРІ
+			TransportRouter(transport_catalogue::TransportCatalogue&, RouterSettings&&);                // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ РІС‹Р·РѕРІР° РёР· РѕР±СЂР°Р±РѕС‚С‡РёРєР° Р·Р°РїСЂРѕСЃРѕРІ
 
-			TransportRouter& SetRouterSettings(const RouterSettings&);                                  // загрузка настроек роутинга
-			TransportRouter& SetRouterSettings(RouterSettings&&);                                       // загрузка настроек роутинга
-			TransportRouter& SetRouterTransportCatalogue(transport_catalogue::TransportCatalogue&);     // переназначение транспортного каталога
+			// ------------------------------------------- Р±Р»РѕРє СЃРµС‚С‚РµСЂРѕРІ РєР»Р°СЃСЃР° Transport Router ----------------------------------------------------------
 
-			TransportRouter& ImportRoutingData();                                                       // загрузка данных для роутинга из каталога
+			TransportRouter& SetRouterSettings(const RouterSettings&);                                  // Р·Р°РіСЂСѓР·РєР° РЅР°СЃС‚СЂРѕРµРє СЂРѕСѓС‚РёРЅРіР°
+			TransportRouter& SetRouterSettings(RouterSettings&&);                                       // Р·Р°РіСЂСѓР·РєР° РЅР°СЃС‚СЂРѕРµРє СЂРѕСѓС‚РёРЅРіР°
+			TransportRouter& SetRouterTransportCatalogue(transport_catalogue::TransportCatalogue&);     // РїРµСЂРµРЅР°Р·РЅР°С‡РµРЅРёРµ С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°
 
-			transport_catalogue::RouterData MakeRoute(std::string_view, std::string_view);              // проложить маршрут от точки А до точки Б
+			TransportRouter& SetRouterGraphs(graph::DirectedWeightedGraph<double>&&);                   // Р·Р°РіСЂСѓР·РёС‚СЊ РґР°РЅРЅС‹Рµ РїРѕ РіСЂР°С„Р°Рј
+			TransportRouter& SetRouterWaitPoints(std::unordered_map<std::string_view, size_t>&&);       // Р·Р°РіСЂСѓР·РёС‚СЊ РґР°РЅРЅС‹Рµ С‚РѕС‡РµРє РѕР¶РёРґР°РЅРёСЏ СЂРѕСѓС‚РµСЂР°
+			TransportRouter& SetRouterMovePoints(std::unordered_map<std::string_view, size_t>&&);       // Р·Р°РіСЂСѓР·РёС‚СЊ РґР°РЅРЅС‹Рµ С‚РѕС‡РµРє РїРµСЂРµРјРµС‰РµРЅРёСЏ СЂРѕСѓС‚РµСЂР°
+
+			TransportRouter& SetRouterDataStatus(RouterDataStatus);                                     // СѓСЃС‚Р°РЅРѕРІРёС‚СЊ С„Р»Р°Рі СЃРѕСЃС‚РѕСЏРЅРёСЏ РґР°РЅРЅС‹С…
+
+			// ------------------------------------------- Р±Р»РѕРє РіРµС‚С‚РµСЂРѕРІ РєР»Р°СЃСЃР° Transport Router ----------------------------------------------------------
+
+			const graph::DirectedWeightedGraph<double>& GetRouterGraphs() const;                        // РїРѕР»СѓС‡РёС‚СЊ РґР°РЅРЅС‹Рµ РіСЂР°С„РѕРІ СЂРѕСѓС‚РµСЂР°
+			const std::unordered_map<std::string_view, size_t>& GetRouterWaitPoints() const;            // РїРѕР»СѓС‡РёС‚СЊ РґР°РЅРЅС‹Рµ С‚РѕС‡РµРє РѕР¶РёРґР°РЅРёСЏ СЂРѕСѓС‚РµСЂР°
+			const std::unordered_map<std::string_view, size_t>& GetRouterMovePoints() const;            // РїРѕР»СѓС‡РёС‚СЊ РґР°РЅРЅС‹Рµ С‚РѕС‡РµРє РїРµСЂРµРјРµС‰РµРЅРёСЏ СЂРѕСѓС‚РµСЂР°
+
+			// ------------------------------------------- jРѕР±С‰РёРµ РјРµС‚РѕРґС‹ РєР»Р°СЃСЃР° Transport Router ----------------------------------------------------------
+
+			TransportRouter& ImportRoutingDataFromCatalogue();                                          // Р·Р°РіСЂСѓР·РєР° РґР°РЅРЅС‹С… РґР»СЏ СЂРѕСѓС‚РёРЅРіР° РёР· РєР°С‚Р°Р»РѕРіР°
+			transport_catalogue::RouterData MakeRoute(std::string_view, std::string_view);              // РїСЂРѕР»РѕР¶РёС‚СЊ РјР°СЂС€СЂСѓС‚ РѕС‚ С‚РѕС‡РєРё Рђ РґРѕ С‚РѕС‡РєРё Р‘
 
 		private:
 			RouterSettings _settings;
 
-			graph::DirectedWeightedGraph<double> _graphs;                                               // блок со всеми остановками и маршрутами
-			std::unique_ptr<graph::Router<double>> _router = nullptr;                                   // готовый роутер со всеми возможными маршрутами
-			std::unordered_map<std::string_view, size_t> _wait_points;                                  // массив id остановок по названию для роутинга
-			std::unordered_map<std::string_view, size_t> _move_points;                                  // массив id перегонов по названию для роутинга
+			graph::DirectedWeightedGraph<double> _graphs;                                               // Р±Р»РѕРє СЃРѕ РІСЃРµРјРё РѕСЃС‚Р°РЅРѕРІРєР°РјРё Рё РјР°СЂС€СЂСѓС‚Р°РјРё
+			std::unique_ptr<graph::Router<double>> _router = nullptr;                                   // РіРѕС‚РѕРІС‹Р№ СЂРѕСѓС‚РµСЂ СЃРѕ РІСЃРµРјРё РІРѕР·РјРѕР¶РЅС‹РјРё РјР°СЂС€СЂСѓС‚Р°РјРё
+			std::unordered_map<std::string_view, size_t> _wait_points;                                  // РјР°СЃСЃРёРІ id РѕСЃС‚Р°РЅРѕРІРѕРє РїРѕ РЅР°Р·РІР°РЅРёСЋ РґР»СЏ СЂРѕСѓС‚РёРЅРіР°
+			std::unordered_map<std::string_view, size_t> _move_points;                                  // РјР°СЃСЃРёРІ id РїРµСЂРµРіРѕРЅРѕРІ РїРѕ РЅР°Р·РІР°РЅРёСЋ РґР»СЏ СЂРѕСѓС‚РёРЅРіР°
+
+			RouterDataStatus _data_status = EMPTY;                                                      // СЃРѕСЃС‚РѕСЏРЅРёРµ РґР°РЅРЅС‹С… СЂРѕСѓС‚РµСЂР°
 		};
 
 	} // namespace router

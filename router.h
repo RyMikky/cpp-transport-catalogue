@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include "graph.h"
 
@@ -111,7 +111,7 @@ namespace graph {
         }
         std::reverse(edges.begin(), edges.end());
 
-        // удаляем крайнюю остановку
+        // СѓРґР°Р»СЏРµРј РєСЂР°Р№РЅСЋСЋ РѕСЃС‚Р°РЅРѕРІРєСѓ
         edges.resize(edges.size() - 1);
         return RouteInfo{ weight, std::move(edges) };
     }

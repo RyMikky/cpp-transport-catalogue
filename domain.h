@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include "geo.h"
 #include "graph.h"
 
@@ -12,7 +12,7 @@ using namespace std::literals;
 
 namespace transport_catalogue {
 
-	// каталог базовых структур для работы основной системы
+	// РєР°С‚Р°Р»РѕРі Р±Р°Р·РѕРІС‹С… СЃС‚СЂСѓРєС‚СѓСЂ РґР»СЏ СЂР°Р±РѕС‚С‹ РѕСЃРЅРѕРІРЅРѕР№ СЃРёСЃС‚РµРјС‹
 
 	struct Stop;
 	struct Route;
@@ -20,20 +20,36 @@ namespace transport_catalogue {
 	using StopPtr = const Stop*;
 	using RoutePtr = const Route*;
 
-	// Остановка
+	// РћСЃС‚Р°РЅРѕРІРєР°
 	struct Stop
 	{
 		Stop() = default;
 		Stop(const std::string_view, const double, const double);
 		Stop(StopPtr);
 
-		std::string _name;                   // Название остановки
-		geo::Coordinates _coords{ 0L,0L };   // Координаты
+		// ---------------------------- Р±Р»РѕРє СЃРµС‚С‚РµСЂРѕРІ СЃС‚СЂСѓРєС‚СѓСЂС‹ РѕСЃС‚Р°РЅРѕРІРєР° -----------------------------------------
+
+		Stop& SetStopName(std::string_view);                                // Р·Р°РґР°С‚СЊ РЅР°Р·РІР°РЅРёРµ РѕСЃС‚Р°РЅРѕРІРєРё
+		Stop& SetStopCoordinates(double, double);                           // Р·Р°РґР°С‚СЊ РєРѕРѕСЂРґРёРЅР°С‚С‹ РїРѕ РґРІСѓРј РїРµСЂРµРјРµРЅРЅС‹Рј
+		Stop& SetStopCoordinates(const geo::Coordinates&);                  // СЃРєРѕРїРёСЂРѕРІР°С‚СЊ РєРѕРѕСЂРґРёРЅР°С‚С‹ РѕСЃС‚Р°РЅРѕРІРєРё
+		Stop& SetStopCoordinates(geo::Coordinates&&);                       // РїСЂРёСЃРІРѕРёС‚СЊ РєРѕРѕСЂРґРёРЅР°С‚С‹ РѕСЃС‚Р°РЅРѕРІРєРё
+
+		// ---------------------------- Р±Р»РѕРє РіРµС‚С‚РµСЂРѕРІ СЃС‚СЂСѓРєС‚СѓСЂС‹ РѕСЃС‚Р°РЅРѕРІРєР° -----------------------------------------
+
+		const std::string& GetStopName() const ;                            // РїРѕР»СѓС‡РёС‚СЊ РЅР°Р·РІР°РЅРёРµ РѕСЃС‚Р°РЅРѕРІРєРё
+		std::string GetStopName();                                          // РїРѕР»СѓС‡РёС‚СЊ РЅР°Р·РІР°РЅРёРµ РѕСЃС‚Р°РЅРѕРІРєРё
+		const geo::Coordinates& GetStopCoordinates() const;                 // Р·Р°РґР°С‚СЊ РєРѕРѕСЂРґРёРЅР°С‚С‹ РїРѕ РґРІСѓРј РїРµСЂРµРјРµРЅРЅС‹Рј
+		geo::Coordinates GetStopCoordinates();                              // Р·Р°РґР°С‚СЊ РєРѕРѕСЂРґРёРЅР°С‚С‹ РїРѕ РґРІСѓРј РїРµСЂРµРјРµРЅРЅС‹Рј
+
+		// ---------------------------- РѕСЃРЅРѕРІРЅС‹Рµ РїРѕР»СЏ СЃС‚СЂСѓРєС‚СѓСЂС‹ РѕСЃС‚Р°РЅРѕРІРєР° -----------------------------------------
+
+		std::string _name;                                                  // РЅР°Р·РІР°РЅРёРµ РѕСЃС‚Р°РЅРѕРІРєРё
+		geo::Coordinates _coords{ 0L,0L };                                  // РєРѕРѕСЂРґРёРЅР°С‚С‹ РѕСЃС‚Р°РЅРѕРІРєРё
 
 		bool operator==(const Stop&) const;
 	};
 
-	// Хешер для останровок
+	// РҐРµС€РµСЂ РґР»СЏ РѕСЃС‚Р°РЅСЂРѕРІРѕРє
 	class StopHasher {
 	public:
 		std::size_t operator()(const StopPtr) const noexcept;
@@ -41,7 +57,7 @@ namespace transport_catalogue {
 		std::hash<std::string> _hasher;
 	};
 
-	// Структура ответа на запрос о остановке
+	// РЎС‚СЂСѓРєС‚СѓСЂР° РѕС‚РІРµС‚Р° РЅР° Р·Р°РїСЂРѕСЃ Рѕ РѕСЃС‚Р°РЅРѕРІРєРµ
 	struct StopStat
 	{
 		explicit StopStat(std::string_view, std::set<std::string_view>&);
@@ -51,7 +67,7 @@ namespace transport_catalogue {
 
 	using StopStatPtr = const StopStat*;
 
-	// Хешер для pair<StopPtr, StopPtr>
+	// РҐРµС€РµСЂ РґР»СЏ pair<StopPtr, StopPtr>
 	class PairPointersHasher
 	{
 	public:
@@ -60,24 +76,46 @@ namespace transport_catalogue {
 		std::hash<const void*> _hasher;
 	};
 
-	// Маршрут
+	// РњР°СЂС€СЂСѓС‚
 	struct Route {
 
 		Route() = default;
 		Route(RoutePtr);
 
-		std::string _route_name;              // номер/название маршрута 
-		std::vector<StopPtr> _stops;          // массив указателей на остановки маршрута
-		size_t _unique_stops_qty = 0U;        // уникальные остановки
-		double _geo_route_length = 0L;        // длина маршрута (геометрическое расстояние)
-		size_t _real_route_length = 0U;       // действительная длина маршрута в метрах
-		double _curvature = 1L;               // отклонение действительного расстояния от геометрического
-		bool _is_circular = false;            // тип маршрута
+		// ---------------------------- Р±Р»РѕРє СЃРµС‚С‚РµСЂРѕРІ СЃС‚СЂСѓРєС‚СѓСЂС‹ РјР°СЂС€СЂСѓС‚ -------------------------------------------
+
+		Route& SetRouteName(std::string_view);                              // Р·Р°РґР°С‚СЊ РЅР°Р·РІР°РЅРёРµ РјР°СЂС€СЂСѓС‚Р°
+		Route& SetStopsPtrs(std::vector<StopPtr>&&);                        // Р·Р°РґР°С‚СЊ РІРµРєС‚РѕСЂ СѓРєР°Р·Р°С‚РµР»РµР№ РѕСЃС‚Р°РЅРѕРІРѕРє
+		Route& SetUniqueStopsQty(size_t);                                   // Р·Р°РґР°С‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ СѓРЅРёРєР°Р»СЊРЅС‹С… РѕСЃС‚Р°РЅРѕРІРѕРє
+		Route& SetGeoRouteLength(double);                                   // Р·Р°РґР°С‚СЊ РіРµРѕРјРµС‚СЂРёС‡РµСЃРєРѕРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ РјР°СЂС€СЂСѓС‚Р°
+		Route& SetRealRouteLength(size_t);                                  // Р·Р°РґР°С‚СЊ СЂРµР°Р»СЊРЅРѕРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ РјР°СЂС€СЂСѓС‚Р°
+		Route& SetCurvature(double);                                        // Р·Р°РґР°С‚СЊ РѕС‚РєР»РѕРЅРµРЅРёРµ СЂР°СЃСЃС‚РѕСЏРЅРёР№ РјР°СЂС€СЂСѓС‚Р°
+		Route& SetIsCircular(bool);                                         // Р·Р°РґР°С‚СЊ С„Р»Р°Рі РєРѕР»СЊС†РµРІРѕРіРѕ РјР°СЂС€СЂСѓС‚Р°
+
+		// ---------------------------- Р±Р»РѕРє РіРµС‚С‚РµСЂРѕРІ СЃС‚СЂСѓРєС‚СѓСЂС‹ РјР°СЂС€СЂСѓС‚ -------------------------------------------
+
+		const std::string& GetRouteName() const;                            // РїРѕР»СѓС‡РёС‚СЊ РЅР°Р·РІР°РЅРёРµ РјР°СЂС€СЂСѓС‚Р°
+		const std::vector<StopPtr>& GetStopsPtrs() const;                   // РїРѕР»СѓС‡РёС‚СЊ РІРµРєС‚РѕСЂ СѓРєР°Р·Р°С‚РµР»РµР№ РѕСЃС‚Р°РЅРѕРІРѕРє
+		size_t GetUniqueStopsQty() const;                                   // РїРѕР»СѓС‡РёС‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ СѓРЅРёРєР°Р»СЊРЅС‹С… РѕСЃС‚Р°РЅРѕРІРѕРє
+		double GetGeoRouteLength() const;                                   // РїРѕР»СѓС‡РёС‚СЊ РіРµРѕРјРµС‚СЂРёС‡РµСЃРєРѕРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ РјР°СЂС€СЂСѓС‚Р°
+		size_t GetRealRouteLength() const;                                  // РїРѕР»СѓС‡РёС‚СЊ СЂРµР°Р»СЊРЅРѕРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ РјР°СЂС€СЂСѓС‚Р°
+		double GetCurvature() const;                                        // РїРѕР»СѓС‡РёС‚СЊ РѕС‚РєР»РѕРЅРµРЅРёРµ СЂР°СЃСЃС‚РѕСЏРЅРёР№ РјР°СЂС€СЂСѓС‚Р°
+		bool GetIsCircular() const;                                         // РїРѕР»СѓС‡РёС‚СЊ С„Р»Р°Рі РєРѕР»СЊС†РµРІРѕРіРѕ РјР°СЂС€СЂСѓС‚Р°
+
+		// ---------------------------- Р±Р»РѕРє РѕСЃРЅРѕРІРЅС‹С… РїРѕР»РµР№ РјР°СЂС€СЂСѓС‚Р° ----------------------------------------------
+
+		std::string _route_name;                                            // РЅРѕРјРµСЂ/РЅР°Р·РІР°РЅРёРµ РјР°СЂС€СЂСѓС‚Р° 
+		std::vector<StopPtr> _stops;                                        // РјР°СЃСЃРёРІ СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° РѕСЃС‚Р°РЅРѕРІРєРё РјР°СЂС€СЂСѓС‚Р°
+		size_t _unique_stops_qty = 0U;                                      // СѓРЅРёРєР°Р»СЊРЅС‹Рµ РѕСЃС‚Р°РЅРѕРІРєРё
+		double _geo_route_length = 0L;                                      // РґР»РёРЅР° РјР°СЂС€СЂСѓС‚Р° (РіРµРѕРјРµС‚СЂРёС‡РµСЃРєРѕРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ)
+		size_t _real_route_length = 0U;                                     // РґРµР№СЃС‚РІРёС‚РµР»СЊРЅР°СЏ РґР»РёРЅР° РјР°СЂС€СЂСѓС‚Р° РІ РјРµС‚СЂР°С…
+		double _curvature = 1L;                                             // РѕС‚РєР»РѕРЅРµРЅРёРµ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕРіРѕ СЂР°СЃСЃС‚РѕСЏРЅРёСЏ РѕС‚ РіРµРѕРјРµС‚СЂРёС‡РµСЃРєРѕРіРѕ
+		bool _is_circular = false;                                          // С„Р»Р°Рі С‚РёРїР° РјР°СЂС€СЂСѓС‚Р°
 
 		bool operator==(const Route&) const;
 	};
 
-	// Хешер для маршрутов
+	// РҐРµС€РµСЂ РґР»СЏ РјР°СЂС€СЂСѓС‚РѕРІ
 	class RouteHasher {
 	public:
 		std::size_t operator()(const RoutePtr) const noexcept;
@@ -85,51 +123,51 @@ namespace transport_catalogue {
 		std::hash<std::string> _hasher;
 	};
 
-	// Структура ответа на инфо по маршруту
+	// РЎС‚СЂСѓРєС‚СѓСЂР° РѕС‚РІРµС‚Р° РЅР° РёРЅС„Рѕ РїРѕ РјР°СЂС€СЂСѓС‚Сѓ
 	struct RouteStat
 	{
 
 		explicit RouteStat(size_t, size_t, size_t, double, std::string_view);
-		size_t _stops_on_route = 0U;           // количество остановок на маршруте
-		size_t _unique_stops = 0U;             // количество уникальных остановок
-		size_t _real_route_length = 0U;        // действительная длина маршрута
-		double _curvature = 1L;                // отклонение маршрута
-		std::string _name;                     // номер/имя маршрута
+		size_t _stops_on_route = 0U;           // РєРѕР»РёС‡РµСЃС‚РІРѕ РѕСЃС‚Р°РЅРѕРІРѕРє РЅР° РјР°СЂС€СЂСѓС‚Рµ
+		size_t _unique_stops = 0U;             // РєРѕР»РёС‡РµСЃС‚РІРѕ СѓРЅРёРєР°Р»СЊРЅС‹С… РѕСЃС‚Р°РЅРѕРІРѕРє
+		size_t _real_route_length = 0U;        // РґРµР№СЃС‚РІРёС‚РµР»СЊРЅР°СЏ РґР»РёРЅР° РјР°СЂС€СЂСѓС‚Р°
+		double _curvature = 1L;                // РѕС‚РєР»РѕРЅРµРЅРёРµ РјР°СЂС€СЂСѓС‚Р°
+		std::string _name;                     // РЅРѕРјРµСЂ/РёРјСЏ РјР°СЂС€СЂСѓС‚Р°
 	};
 
 	using RouteStatPtr = const RouteStat*;
 
-	// блок структур запросов
+	// Р±Р»РѕРє СЃС‚СЂСѓРєС‚СѓСЂ Р·Р°РїСЂРѕСЃРѕРІ
 
 	enum RequestType {
 		null_req = 0,
 		add_stop, add_route, add_dist, stop_info, route_info, stat_info, map_render, print_history, routing
 
-		// stat_info - общий тип запроса на получение информации по маршруту или остановке
-		// нужен по условию задачи, так как все запросы на получение информации должны 
-		// обрабатываться в порядке поступления, а не по очереди как с было у меня
+		// stat_info - РѕР±С‰РёР№ С‚РёРї Р·Р°РїСЂРѕСЃР° РЅР° РїРѕР»СѓС‡РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё РїРѕ РјР°СЂС€СЂСѓС‚Сѓ РёР»Рё РѕСЃС‚Р°РЅРѕРІРєРµ
+		// РЅСѓР¶РµРЅ РїРѕ СѓСЃР»РѕРІРёСЋ Р·Р°РґР°С‡Рё, С‚Р°Рє РєР°Рє РІСЃРµ Р·Р°РїСЂРѕСЃС‹ РЅР° РїРѕР»СѓС‡РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё РґРѕР»Р¶РЅС‹ 
+		// РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊСЃСЏ РІ РїРѕСЂСЏРґРєРµ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ, Р° РЅРµ РїРѕ РѕС‡РµСЂРµРґРё РєР°Рє СЃ Р±С‹Р»Рѕ Сѓ РјРµРЅСЏ
 
-		// add_dist - пока не использован, так как добавление дистанций оформленно как
-		// sub-запрос к добавлению остановки, если поле _distances имеет данные
+		// add_dist - РїРѕРєР° РЅРµ РёСЃРїРѕР»СЊР·РѕРІР°РЅ, С‚Р°Рє РєР°Рє РґРѕР±Р°РІР»РµРЅРёРµ РґРёСЃС‚Р°РЅС†РёР№ РѕС„РѕСЂРјР»РµРЅРЅРѕ РєР°Рє
+		// sub-Р·Р°РїСЂРѕСЃ Рє РґРѕР±Р°РІР»РµРЅРёСЋ РѕСЃС‚Р°РЅРѕРІРєРё, РµСЃР»Рё РїРѕР»Рµ _distances РёРјРµРµС‚ РґР°РЅРЅС‹Рµ
 
-		// print_history - пока не использован, так как система в статическом режиме
-		// имеет смысл при онлайн работе с возможностью конвейерной обработки запросов
-		// которые задаются в случайном порядке
+		// print_history - РїРѕРєР° РЅРµ РёСЃРїРѕР»СЊР·РѕРІР°РЅ, С‚Р°Рє РєР°Рє СЃРёСЃС‚РµРјР° РІ СЃС‚Р°С‚РёС‡РµСЃРєРѕРј СЂРµР¶РёРјРµ
+		// РёРјРµРµС‚ СЃРјС‹СЃР» РїСЂРё РѕРЅР»Р°Р№РЅ СЂР°Р±РѕС‚Рµ СЃ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊСЋ РєРѕРЅРІРµР№РµСЂРЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРё Р·Р°РїСЂРѕСЃРѕРІ
+		// РєРѕС‚РѕСЂС‹Рµ Р·Р°РґР°СЋС‚СЃСЏ РІ СЃР»СѓС‡Р°Р№РЅРѕРј РїРѕСЂСЏРґРєРµ
 	};
 
-	// структура запроса для работы c терминалом
+	// СЃС‚СЂСѓРєС‚СѓСЂР° Р·Р°РїСЂРѕСЃР° РґР»СЏ СЂР°Р±РѕС‚С‹ c С‚РµСЂРјРёРЅР°Р»РѕРј
 	struct SimpleRequest;
 	using SimpleRequestPtr = SimpleRequest*;
 
-	// структура запроса для работы с json
+	// СЃС‚СЂСѓРєС‚СѓСЂР° Р·Р°РїСЂРѕСЃР° РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ json
 	struct JsonRequest;
 	using JsonRequestPtr = JsonRequest*;
 
-	// запрос на получение данных для рендера
+	// Р·Р°РїСЂРѕСЃ РЅР° РїРѕР»СѓС‡РµРЅРёРµ РґР°РЅРЅС‹С… РґР»СЏ СЂРµРЅРґРµСЂР°
 	struct RendererRequest;
 	using RendererDataPtr = RendererRequest*;
 
-	// структура запроса для работы с терминалом
+	// СЃС‚СЂСѓРєС‚СѓСЂР° Р·Р°РїСЂРѕСЃР° РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ С‚РµСЂРјРёРЅР°Р»РѕРј
 	struct SimpleRequest {
 		SimpleRequest() = default;
 
@@ -137,39 +175,39 @@ namespace transport_catalogue {
 
 		SimpleRequestPtr GetPtr();
 
-		size_t _id = 0;                                          // id запроса
-		RequestType _type = RequestType::null_req;               // тип запроса
-		std::string_view _key = ""sv;                            // ключ запроса (Bus, Stop, Map, Route)
-		std::string_view _name = ""sv;                           // имя запроса (маршрута, остановки)
-		std::string_view _from = ""sv;                           // начало пути для запроса Route
-		std::string_view _to = ""sv;                             // конечная пути для запроса Route
-		geo::Coordinates _coord = { 0L, 0L };                    // координаты, если остановка
-		std::vector<std::string_view> _stops = {};               // остановки, если маршрут
-		std::map<std::string_view, int64_t> _distances = {};     // расстояния до остановок
-		bool _is_circular = true;                                // тип маршрута
-		std::string _input_line = ""s;                           // входная строка
+		size_t _id = 0;                                          // id Р·Р°РїСЂРѕСЃР°
+		RequestType _type = RequestType::null_req;               // С‚РёРї Р·Р°РїСЂРѕСЃР°
+		std::string_view _key = ""sv;                            // РєР»СЋС‡ Р·Р°РїСЂРѕСЃР° (Bus, Stop, Map, Route)
+		std::string_view _name = ""sv;                           // РёРјСЏ Р·Р°РїСЂРѕСЃР° (РјР°СЂС€СЂСѓС‚Р°, РѕСЃС‚Р°РЅРѕРІРєРё)
+		std::string_view _from = ""sv;                           // РЅР°С‡Р°Р»Рѕ РїСѓС‚Рё РґР»СЏ Р·Р°РїСЂРѕСЃР° Route
+		std::string_view _to = ""sv;                             // РєРѕРЅРµС‡РЅР°СЏ РїСѓС‚Рё РґР»СЏ Р·Р°РїСЂРѕСЃР° Route
+		geo::Coordinates _coord = { 0L, 0L };                    // РєРѕРѕСЂРґРёРЅР°С‚С‹, РµСЃР»Рё РѕСЃС‚Р°РЅРѕРІРєР°
+		std::vector<std::string_view> _stops = {};               // РѕСЃС‚Р°РЅРѕРІРєРё, РµСЃР»Рё РјР°СЂС€СЂСѓС‚
+		std::map<std::string_view, int64_t> _distances = {};     // СЂР°СЃСЃС‚РѕСЏРЅРёСЏ РґРѕ РѕСЃС‚Р°РЅРѕРІРѕРє
+		bool _is_circular = true;                                // С‚РёРї РјР°СЂС€СЂСѓС‚Р°
+		std::string _input_line = ""s;                           // РІС…РѕРґРЅР°СЏ СЃС‚СЂРѕРєР°
 	};
 
-	// структура запроса для работы с json
+	// СЃС‚СЂСѓРєС‚СѓСЂР° Р·Р°РїСЂРѕСЃР° РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ json
 	struct JsonRequest {
 		JsonRequest() = default;
 
 		JsonRequestPtr GetPtr();
 
-		size_t _id = 0;                                          // id запроса
-		RequestType _type = RequestType::null_req;               // тип запроса
-		std::string _key = ""s;                                  // ключ запроса (Bus, Stop, Map, Route)
-		std::string _name = ""s;                                 // имя запроса (маршрута, остановки)
-		std::string _from = ""s;                                 // начало пути для запроса Route
-		std::string _to = ""s;                                   // конечная пути для запроса Route
-		geo::Coordinates _coord = { 0L, 0L };                    // координаты, если остановка
-		std::vector<std::string> _stops = {};                    // остановки, если маршрут
-		std::map<std::string, int64_t> _distances = {};          // расстояния до остановок
-		bool _is_circular = true;                                // тип маршрута
+		size_t _id = 0;                                          // id Р·Р°РїСЂРѕСЃР°
+		RequestType _type = RequestType::null_req;               // С‚РёРї Р·Р°РїСЂРѕСЃР°
+		std::string _key = ""s;                                  // РєР»СЋС‡ Р·Р°РїСЂРѕСЃР° (Bus, Stop, Map, Route)
+		std::string _name = ""s;                                 // РёРјСЏ Р·Р°РїСЂРѕСЃР° (РјР°СЂС€СЂСѓС‚Р°, РѕСЃС‚Р°РЅРѕРІРєРё)
+		std::string _from = ""s;                                 // РЅР°С‡Р°Р»Рѕ РїСѓС‚Рё РґР»СЏ Р·Р°РїСЂРѕСЃР° Route
+		std::string _to = ""s;                                   // РєРѕРЅРµС‡РЅР°СЏ РїСѓС‚Рё РґР»СЏ Р·Р°РїСЂРѕСЃР° Route
+		geo::Coordinates _coord = { 0L, 0L };                    // РєРѕРѕСЂРґРёРЅР°С‚С‹, РµСЃР»Рё РѕСЃС‚Р°РЅРѕРІРєР°
+		std::vector<std::string> _stops = {};                    // РѕСЃС‚Р°РЅРѕРІРєРё, РµСЃР»Рё РјР°СЂС€СЂСѓС‚
+		std::map<std::string, int64_t> _distances = {};          // СЂР°СЃСЃС‚РѕСЏРЅРёСЏ РґРѕ РѕСЃС‚Р°РЅРѕРІРѕРє
+		bool _is_circular = true;                                // С‚РёРї РјР°СЂС€СЂСѓС‚Р°
 
 	};
 
-	// запрос на обновление параметров рендера
+	// Р·Р°РїСЂРѕСЃ РЅР° РѕР±РЅРѕРІР»РµРЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ СЂРµРЅРґРµСЂР°
 	struct RendererRequest {
 		RendererRequest() = default;
 		RendererRequest(bool, std::vector<StopPtr>);
@@ -178,35 +216,35 @@ namespace transport_catalogue {
 		std::vector<StopPtr> _stops;
 	};
 
-	// Структура ответа рендера в виде строки
+	// РЎС‚СЂСѓРєС‚СѓСЂР° РѕС‚РІРµС‚Р° СЂРµРЅРґРµСЂР° РІ РІРёРґРµ СЃС‚СЂРѕРєРё
 	struct RendererData {
 		std::string _svg_line = {};
 	};
 
-	// Структура участка построенного маршрута 
+	// РЎС‚СЂСѓРєС‚СѓСЂР° СѓС‡Р°СЃС‚РєР° РїРѕСЃС‚СЂРѕРµРЅРЅРѕРіРѕ РјР°СЂС€СЂСѓС‚Р° 
 	struct RouterItem
 	{
-		RouterItem& SetItemName(std::string_view);                    // Задать название участка маршрута
-		RouterItem& SetItemSpanCount(int);                            // Задать количество преодаленных остановок на участке маршруте
-		RouterItem& SetItemTime(double);                              // Задать время прохождения участка маршрута
-		RouterItem& SetItemEdgeType(graph::EdgeType);                 // Задать тип участка маршрута
+		RouterItem& SetItemName(std::string_view);                    // Р—Р°РґР°С‚СЊ РЅР°Р·РІР°РЅРёРµ СѓС‡Р°СЃС‚РєР° РјР°СЂС€СЂСѓС‚Р°
+		RouterItem& SetItemSpanCount(int);                            // Р—Р°РґР°С‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРµРѕРґР°Р»РµРЅРЅС‹С… РѕСЃС‚Р°РЅРѕРІРѕРє РЅР° СѓС‡Р°СЃС‚РєРµ РјР°СЂС€СЂСѓС‚Рµ
+		RouterItem& SetItemTime(double);                              // Р—Р°РґР°С‚СЊ РІСЂРµРјСЏ РїСЂРѕС…РѕР¶РґРµРЅРёСЏ СѓС‡Р°СЃС‚РєР° РјР°СЂС€СЂСѓС‚Р°
+		RouterItem& SetItemEdgeType(graph::EdgeType);                 // Р—Р°РґР°С‚СЊ С‚РёРї СѓС‡Р°СЃС‚РєР° РјР°СЂС€СЂСѓС‚Р°
 
-		std::string_view GetItemName() const;                         // Получить название участка маршрута
-		int GetItemSpanCount() const;                                 // Получить количество преодаленных остановок на участке маршруте
-		double GetItemTime() const;                                   // Получить время прохождения участка маршрута
-		graph::EdgeType GetItemType() const;                          // Получить тип участка маршрута
+		std::string_view GetItemName() const;                         // РџРѕР»СѓС‡РёС‚СЊ РЅР°Р·РІР°РЅРёРµ СѓС‡Р°СЃС‚РєР° РјР°СЂС€СЂСѓС‚Р°
+		int GetItemSpanCount() const;                                 // РџРѕР»СѓС‡РёС‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРµРѕРґР°Р»РµРЅРЅС‹С… РѕСЃС‚Р°РЅРѕРІРѕРє РЅР° СѓС‡Р°СЃС‚РєРµ РјР°СЂС€СЂСѓС‚Рµ
+		double GetItemTime() const;                                   // РџРѕР»СѓС‡РёС‚СЊ РІСЂРµРјСЏ РїСЂРѕС…РѕР¶РґРµРЅРёСЏ СѓС‡Р°СЃС‚РєР° РјР°СЂС€СЂСѓС‚Р°
+		graph::EdgeType GetItemType() const;                          // РџРѕР»СѓС‡РёС‚СЊ С‚РёРї СѓС‡Р°СЃС‚РєР° РјР°СЂС€СЂСѓС‚Р°
 
-		std::string _item_name = {};                                  // Название участка маршрута
-		int _span_count = 0;                                          // Количество преодаленных остановок на участке маршруте
-		double _time = 0.0;                                           // Время прохождения участка маршрута
-		graph::EdgeType _type;                                        // Тип участка маршрута
+		std::string _item_name = {};                                  // РќР°Р·РІР°РЅРёРµ СѓС‡Р°СЃС‚РєР° РјР°СЂС€СЂСѓС‚Р°
+		int _span_count = 0;                                          // РљРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРµРѕРґР°Р»РµРЅРЅС‹С… РѕСЃС‚Р°РЅРѕРІРѕРє РЅР° СѓС‡Р°СЃС‚РєРµ РјР°СЂС€СЂСѓС‚Рµ
+		double _time = 0.0;                                           // Р’СЂРµРјСЏ РїСЂРѕС…РѕР¶РґРµРЅРёСЏ СѓС‡Р°СЃС‚РєР° РјР°СЂС€СЂСѓС‚Р°
+		graph::EdgeType _type;                                        // РўРёРї СѓС‡Р°СЃС‚РєР° РјР°СЂС€СЂСѓС‚Р°
 	};
-	// Структура построенного маршрута
+	// РЎС‚СЂСѓРєС‚СѓСЂР° РїРѕСЃС‚СЂРѕРµРЅРЅРѕРіРѕ РјР°СЂС€СЂСѓС‚Р°
 	struct RouterData
 	{
-		double _route_time = 0.0;                                     // Время в пути на маршруте
-		std::vector<RouterItem> _route_items;                         // Участки маршрута
-		bool _is_founded = false;                                     // Статус маршрута
+		double _route_time = 0.0;                                     // Р’СЂРµРјСЏ РІ РїСѓС‚Рё РЅР° РјР°СЂС€СЂСѓС‚Рµ
+		std::vector<RouterItem> _route_items;                         // РЈС‡Р°СЃС‚РєРё РјР°СЂС€СЂСѓС‚Р°
+		bool _is_founded = false;                                     // РЎС‚Р°С‚СѓСЃ РјР°СЂС€СЂСѓС‚Р°
 	};
 
 } // namespace transport_catalogue

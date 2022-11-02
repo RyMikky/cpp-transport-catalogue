@@ -1,4 +1,4 @@
-#include "map_renderer.h"
+п»ї#include "map_renderer.h"
 
 namespace transport_catalogue {
 
@@ -21,16 +21,26 @@ namespace transport_catalogue {
 		LabelOffset::LabelOffset(double dx, double dy) : _dx(dx), _dy(dy) {
 		}
 
-		// назначение параметров для дефолтной структуры
+		// РЅР°Р·РЅР°С‡РµРЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ РґР»СЏ РґРµС„РѕР»С‚РЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂС‹
 		LabelOffset& LabelOffset::SetOffset(double dx, double dy) {
 			_dx = dx;
 			_dy = dy;
 			return *this;
 		}
 
-		// получить параметры структуры
+		// РїРѕР»СѓС‡РёС‚СЊ РїР°СЂР°РјРµС‚СЂС‹ СЃС‚СЂСѓРєС‚СѓСЂС‹
 		LabelOffset LabelOffset::GetOffset() const {
 			return *this;
+		}
+
+		// РІРѕР»СѓС‡РёС‚СЊ РІРµР»РёС‡РёРЅСѓ СЃРјРµС‰РµРЅРёСЏ РїРѕ РѕСЃРё X
+		double LabelOffset::GetDX() const {
+			return _dx;
+		}
+
+		// РІРѕР»СѓС‡РёС‚СЊ РІРµР»РёС‡РёРЅСѓ СЃРјРµС‰РµРЅРёСЏ РїРѕ РѕСЃРё Y
+		double LabelOffset::GetDY() const {
+			return _dy;
 		}
 
 		// ---------------------------- struct LabelOffset END --------------------------------------
@@ -50,87 +60,175 @@ namespace transport_catalogue {
 		RendererSettings::RendererSettings(double width, double height, double padding, double line_width, double stop_radius,
 			size_t bus_font_size, LabelOffset bus_font_offset, size_t stop_font_size, LabelOffset stop_font_offset,
 			svg::Color underlayer_color, double underlayer_width, std::vector<svg::Color> color_palette)
-			: _width(width), _height(height), _padding(padding), _line_width(line_width), _stop_radius(stop_radius)
-			, _bus_label_font_size(bus_font_size), _bus_label_offset(bus_font_offset), _stop_label_font_size(stop_font_size)
-			, _stop_label_offset(stop_font_offset), _underlayer_color(underlayer_color), _underlayer_width(underlayer_width), _color_palette(color_palette) {
+			: _width(width), _height(height), _padding(padding), _line_width(line_width), _stop_radius(stop_radius), _bus_label_font_size(bus_font_size)
+			, _bus_label_offset(bus_font_offset), _stop_label_font_size(stop_font_size), _stop_label_offset(stop_font_offset)
+			, _underlayer_color(underlayer_color), _underlayer_width(underlayer_width), _color_palette(color_palette), _IsDefault(false) {
 		}
 
-		// задать ширину отображаемого изображения
+		// РІРѕР·РІСЂР°С‰Р°РµС‚ С„Р»Р°Рі С‚РёРїР° РЅР°СЃС‚СЂРѕРµРє
+		bool RendererSettings::IsDefault() const {
+			return _IsDefault;
+		}
+
+		// Р·Р°РґР°С‚СЊ С€РёСЂРёРЅСѓ РѕС‚РѕР±СЂР°Р¶Р°РµРјРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
 		RendererSettings& RendererSettings::SetWidth(double width) {
 			_width = std::move(width);
+			_IsDefault = false;
 			return *this;
 		}
 
-		// задать высоту отображаемого изображения
+		// Р·Р°РґР°С‚СЊ РІС‹СЃРѕС‚Сѓ РѕС‚РѕР±СЂР°Р¶Р°РµРјРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
 		RendererSettings& RendererSettings::SetHeight(double height) {
 			_height = std::move(height);
+			_IsDefault = false;
 			return *this;
 		}
 
-		// задать отступ краёв карты от границ SVG-документа
+		// Р·Р°РґР°С‚СЊ РѕС‚СЃС‚СѓРї РєСЂР°С‘РІ РєР°СЂС‚С‹ РѕС‚ РіСЂР°РЅРёС† SVG-РґРѕРєСѓРјРµРЅС‚Р°
 		RendererSettings& RendererSettings::SetPadding(double padding) {
 			_padding = std::move(padding);
+			_IsDefault = false;
 			return *this;
 		}
 
-		// задать толщину линий, которыми рисуются автобусные маршруты
+		// Р·Р°РґР°С‚СЊ С‚РѕР»С‰РёРЅСѓ Р»РёРЅРёР№, РєРѕС‚РѕСЂС‹РјРё СЂРёСЃСѓСЋС‚СЃСЏ Р°РІС‚РѕР±СѓСЃРЅС‹Рµ РјР°СЂС€СЂСѓС‚С‹
 		RendererSettings& RendererSettings::SetLineWidth(double l_width) {
 			_line_width = std::move(l_width);
+			_IsDefault = false;
 			return *this;
 		}
 
-		// задать радиус окружностей, которыми обозначаются остановки
+		// Р·Р°РґР°С‚СЊ СЂР°РґРёСѓСЃ РѕРєСЂСѓР¶РЅРѕСЃС‚РµР№, РєРѕС‚РѕСЂС‹РјРё РѕР±РѕР·РЅР°С‡Р°СЋС‚СЃСЏ РѕСЃС‚Р°РЅРѕРІРєРё
 		RendererSettings& RendererSettings::SetStopRadius(double radius) {
 			_stop_radius = std::move(radius);
+			_IsDefault = false;
 			return *this;
 		}
 
-		// задать размер текста написания автобусных остановок
+		// Р·Р°РґР°С‚СЊ СЂР°Р·РјРµСЂ С‚РµРєСЃС‚Р° РЅР°РїРёСЃР°РЅРёСЏ Р°РІС‚РѕР±СѓСЃРЅС‹С… РѕСЃС‚Р°РЅРѕРІРѕРє
 		RendererSettings& RendererSettings::SetBusLabelFont(size_t size) {
 			_bus_label_font_size = std::move(size);
+			_IsDefault = false;
 			return *this;
 		}
 
-		// задать смещение надписи с названием маршрута
+		// Р·Р°РґР°С‚СЊ СЃРјРµС‰РµРЅРёРµ РЅР°РґРїРёСЃРё СЃ РЅР°Р·РІР°РЅРёРµРј РјР°СЂС€СЂСѓС‚Р°
 		RendererSettings& RendererSettings::SetBusLabelOffset(LabelOffset offset) {
 			_bus_label_offset = std::move(offset);
+			_IsDefault = false;
 			return *this;
 		}
 
-		// задать размер текста написания автобусных остановок
+		// Р·Р°РґР°С‚СЊ СЂР°Р·РјРµСЂ С‚РµРєСЃС‚Р° РЅР°РїРёСЃР°РЅРёСЏ Р°РІС‚РѕР±СѓСЃРЅС‹С… РѕСЃС‚Р°РЅРѕРІРѕРє
 		RendererSettings& RendererSettings::SetStopLabelFont(size_t size) {
 			_stop_label_font_size = std::move(size);
+			_IsDefault = false;
 			return *this;
 		}
 
-		// задать смещение надписи названия остановки
+		// Р·Р°РґР°С‚СЊ СЃРјРµС‰РµРЅРёРµ РЅР°РґРїРёСЃРё РЅР°Р·РІР°РЅРёСЏ РѕСЃС‚Р°РЅРѕРІРєРё
 		RendererSettings& RendererSettings::SetStopLabelOffset(LabelOffset offset) {
 			_stop_label_offset = std::move(offset);
+			_IsDefault = false;
 			return *this;
 		}
 
-		// задать цвет подложки под названиями
-		RendererSettings& RendererSettings::SetUnderlayerColor(svg::Color color) {
+		// Р·Р°РґР°С‚СЊ С†РІРµС‚ РїРѕРґР»РѕР¶РєРё РїРѕРґ РЅР°Р·РІР°РЅРёСЏРјРё
+		RendererSettings& RendererSettings::SetUnderlayerColor(const svg::Color& color) {
+			_underlayer_color = color;
+			_IsDefault = false;
+			return *this;
+		}
+
+		// Р·Р°РґР°С‚СЊ С†РІРµС‚ РїРѕРґР»РѕР¶РєРё РїРѕРґ РЅР°Р·РІР°РЅРёСЏРјРё
+		RendererSettings& RendererSettings::SetUnderlayerColor(svg::Color&& color) {
 			_underlayer_color = std::move(color);
+			_IsDefault = false;
 			return *this;
 		}
 
-		// задать толщину подложки под названиями
+		// Р·Р°РґР°С‚СЊ С‚РѕР»С‰РёРЅСѓ РїРѕРґР»РѕР¶РєРё РїРѕРґ РЅР°Р·РІР°РЅРёСЏРјРё
 		RendererSettings& RendererSettings::SetUnderlayerWidth(double width) {
 			_underlayer_width = std::move(width);
+			_IsDefault = false;
 			return *this;
 		}
 
-		// добавить цвет в палетту
-		RendererSettings& RendererSettings::AddColorInPalette(svg::Color color) {
+		// РґРѕР±Р°РІРёС‚СЊ С†РІРµС‚ РІ РїР°Р»РёС‚СЂСѓ
+		RendererSettings& RendererSettings::AddColorInPalette(const svg::Color& color) {
+			_color_palette.push_back(color);
+			_IsDefault = false;
+			return *this;
+		}
+
+		// РґРѕР±Р°РІРёС‚СЊ С†РІРµС‚ РІ РїР°Р»РёС‚СЂСѓ
+		RendererSettings& RendererSettings::AddColorInPalette(svg::Color&& color) {
 			_color_palette.push_back(std::move(color));
+			_IsDefault = false;
 			return *this;
 		}
 
-		// обнулить палетту цветов
+		// РѕР±РЅСѓР»РёС‚СЊ РїР°Р»РµС‚С‚Сѓ С†РІРµС‚РѕРІ
 		RendererSettings& RendererSettings::ResetColorPalette() {
 			_color_palette.clear();
+			_IsDefault = false;
 			return *this;
+		}
+
+		// РїРѕР»СѓС‡РёС‚СЊ С€РёСЂРёРЅСѓ РѕС‚РѕР±СЂР°Р¶Р°РµРјРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
+		double RendererSettings::GetWight() const {
+			return _width;
+		}
+
+		// РїРѕР»СѓС‡РёС‚СЊ РІС‹СЃРѕС‚Сѓ РѕС‚РѕР±СЂР°Р¶Р°РµРјРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
+		double RendererSettings::GetHeight() const {
+			return _height;
+		}
+
+		// РїРѕР»СѓС‡РёС‚СЊ РѕС‚СЃС‚СѓРї РєСЂР°С‘РІ РєР°СЂС‚С‹ РѕС‚ РіСЂР°РЅРёС† SVG-РґРѕРєСѓРјРµРЅС‚Р°
+		double RendererSettings::GetPadding() const {
+			return _padding;
+		}
+
+		// РїРѕР»СѓС‡РёС‚СЊ С‚РѕР»С‰РёРЅСѓ Р»РёРЅРёР№ РѕС‚СЂРёСЃРѕРІРєРё РјР°СЂС€СЂСѓС‚РѕРІ
+		double RendererSettings::GetLineWidth() const {
+			return _line_width;
+		}
+		
+		// РїРѕР»СѓС‡РёС‚СЊ СЂР°РґРёСѓСЃ РѕРєСЂСѓР¶РЅРѕСЃС‚РµР№ РѕС‚СЂРёСЃРѕРІРєРё РѕСЃС‚Р°РЅРѕРІРѕРє
+		double RendererSettings::GetStopRadius() const {
+			return _stop_radius;
+		}
+
+		// РїРѕР»СѓС‡РёС‚СЊ СЂР°Р·РјРµСЂ С‚РµРєСЃС‚Р° РЅР°Р·РІР°РЅРёР№ РјР°СЂС€СЂСѓС‚РѕРІ
+		size_t RendererSettings::GetBusLabelFontSize() const {
+			return _bus_label_font_size;
+		}
+		// РїРѕР»СѓС‡РёС‚СЊ СЃРјРµС‰РµРЅРёРµ РЅР°РґРїРёСЃРµР№ РЅР°Р·РІР°РЅРёР№ РјР°СЂС€СЂСѓС‚РѕРІ
+		LabelOffset RendererSettings::GetBusLabelOffSet() const {
+			return _bus_label_offset;
+		}
+
+		// РїРѕР»СѓС‡РёС‚СЊ СЂР°Р·РјРµСЂ С‚РµРєСЃС‚Р° РЅР°Р·РІР°РЅРёР№ РѕСЃС‚Р°РЅРѕРІРѕРє
+		size_t RendererSettings::GetStopLabelFontSize() const {
+			return _stop_label_font_size;
+		}
+		// РїРѕР»СѓС‡РёС‚СЊ СЃРјРµС‰РµРЅРёРµ РЅР°РґРїРёСЃРµР№ РЅР°Р·РІР°РЅРёР№ РѕСЃС‚Р°РЅРѕРІРѕРє
+		LabelOffset RendererSettings::GetStopLabelOffSet() const {
+			return _stop_label_offset;
+		}
+
+		// РїРѕР»СѓС‡РёС‚СЊ С†РІРµС‚ РїРѕРґР»РѕР¶РєРё РїРѕРґ РЅР°Р·РІР°РЅРёСЏРјРё РѕСЃС‚Р°РЅРѕРІРѕРє Рё РјР°СЂС€СЂСѓС‚РѕРІ
+		svg::Color RendererSettings::GetUnderlaterColor() const {
+			return _underlayer_color;
+		}
+		// РїРѕР»СѓС‡РёС‚СЊ С‚РѕР»С‰РёРЅСѓ РїРѕРґР»РѕР¶РєРё РїРѕРґ РЅР°Р·РІР°РЅРёСЏРјРё РѕСЃС‚Р°РЅРѕРІРѕРє Рё РјР°СЂС€СЂСѓС‚РѕРІ
+		double RendererSettings::GetUnderlayerWidth() const {
+			return _underlayer_width;
+		}
+		// РїРѕР»СѓС‡РёС‚СЊ СЃСЃС‹Р»РєСѓ РЅР° РїР°Р»РёС‚СЂСѓ С†РІРµС‚РѕРІ СЂРµРЅРґРµСЂР°
+		const std::vector<svg::Color>& RendererSettings::GetColorPalette() const {
+			return _color_palette;
 		}
 
 		// ---------------------------- struct RenderSettings END -----------------------------------
@@ -290,20 +388,20 @@ namespace transport_catalogue {
 		// ---------------------------- class MapRender ---------------------------------------------
 
 
-		// конструктор для вызова из обработчика запросов
+		// РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ РІС‹Р·РѕРІР° РёР· РѕР±СЂР°Р±РѕС‚С‡РёРєР° Р·Р°РїСЂРѕСЃРѕРІ
 		MapRenderer::MapRenderer( const RendererSettings& settings) : _settings(settings) {
 		}
 
-		// загрузка настроек рендера
+		// Р·Р°РіСЂСѓР·РєР° РЅР°СЃС‚СЂРѕРµРє СЂРµРЅРґРµСЂР°
 		MapRenderer& MapRenderer::SetRendererSettings(const RendererSettings& settings) {
 			_settings = settings;
 			return *this;
 		}
 
 
-		// ---------------------------- блок загрузки данных ---------------------------------------
+		// ---------------------------- Р±Р»РѕРє Р·Р°РіСЂСѓР·РєРё РґР°РЅРЅС‹С… ---------------------------------------
 
-		// загрузка данных для рендеринга
+		// Р·Р°РіСЂСѓР·РєР° РґР°РЅРЅС‹С… РґР»СЏ СЂРµРЅРґРµСЂРёРЅРіР°
 		MapRenderer& MapRenderer::AddRendererData(std::pair<std::string, RendererRequest> data) {
 
 			ToRouteRender route;
@@ -324,9 +422,9 @@ namespace transport_catalogue {
 			return *this;
 		}
 
-		// ---------------------------- блок обработки ---------------------------------------------
+		// ---------------------------- Р±Р»РѕРє РѕР±СЂР°Р±РѕС‚РєРё ---------------------------------------------
 
-		// калибровка проекции координат
+		// РєР°Р»РёР±СЂРѕРІРєР° РїСЂРѕРµРєС†РёРё РєРѕРѕСЂРґРёРЅР°С‚
 		MapRenderer& MapRenderer::CoordsProject(){ 
 			SphereProjector projector(_input_coord.begin(), _input_coord.end(), 
 				_settings._width, _settings._height, _settings._padding);
@@ -334,7 +432,7 @@ namespace transport_catalogue {
 			return *this;
 		}
 
-		// отрисовка маршрутов
+		// РѕС‚СЂРёСЃРѕРІРєР° РјР°СЂС€СЂСѓС‚РѕРІ
 		MapRenderer& MapRenderer::RouteRender(std::vector<std::unique_ptr<svg::Drawable>>& container) {
 
 			std::vector<RouteLabelData> to_label_render;
@@ -345,17 +443,17 @@ namespace transport_catalogue {
 				auto route_color = GetColorFromPallete();
 				auto route_name = route._name;
 
-				// набираем полилинии маршрутов
+				// РЅР°Р±РёСЂР°РµРј РїРѕР»РёР»РёРЅРёРё РјР°СЂС€СЂСѓС‚РѕРІ
 				std::vector<svg::Point> points;  
 
 				for (const auto& stop : route._stops){
 					points.push_back(_projector(*stop.second));
 				}
 
-				// добавляем информацию о маршруте в рендер
+				// РґРѕР±Р°РІР»СЏРµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РјР°СЂС€СЂСѓС‚Рµ РІ СЂРµРЅРґРµСЂ
 				container.emplace_back(std::make_unique<RouteLine>(RouteLine{ points, route_color , _settings }));
 
-				// подготавливаем данные о названии маршрута
+				// РїРѕРґРіРѕС‚Р°РІР»РёРІР°РµРј РґР°РЅРЅС‹Рµ Рѕ РЅР°Р·РІР°РЅРёРё РјР°СЂС€СЂСѓС‚Р°
 				if (route._is_circular) {
 					to_label_render.push_back(RouteLabelData(_projector
 					(*route._stops[0].second), _projector(*route._stops[0].second), route_name, route_color));
@@ -366,7 +464,7 @@ namespace transport_catalogue {
 				}
 			}
 
-			// добавляем информацию о названии маршрута в рендер
+			// РґРѕР±Р°РІР»СЏРµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РЅР°Р·РІР°РЅРёРё РјР°СЂС€СЂСѓС‚Р° РІ СЂРµРЅРґРµСЂ
 			for (auto& item : to_label_render) {
 				container.emplace_back(std::make_unique<RouteLabel>(RouteLabel
 					{ item._end_point, item._middle_point, item._route_label, item._route_color, _settings }));
@@ -375,7 +473,7 @@ namespace transport_catalogue {
 			return *this;
 		}
 
-		// отрисовка названий остановок
+		// РѕС‚СЂРёСЃРѕРІРєР° РЅР°Р·РІР°РЅРёР№ РѕСЃС‚Р°РЅРѕРІРѕРє
 		MapRenderer& MapRenderer::PointRender(std::vector<std::unique_ptr<svg::Drawable>>& container) {
 
 			for (const auto& stop : _unique_stops)
@@ -387,7 +485,7 @@ namespace transport_catalogue {
 			return *this;
 		}
 
-		// отрисовка точек остановок
+		// РѕС‚СЂРёСЃРѕРІРєР° С‚РѕС‡РµРє РѕСЃС‚Р°РЅРѕРІРѕРє
 		MapRenderer& MapRenderer::PointLabelRender(std::vector<std::unique_ptr<svg::Drawable>>& container) {
 
 			for (const auto& stop : _unique_stops)
@@ -399,14 +497,14 @@ namespace transport_catalogue {
 			return *this;
 		}
 
-		// модуль отрисовки
+		// РјРѕРґСѓР»СЊ РѕС‚СЂРёСЃРѕРІРєРё
 		void MapRenderer::StreamRendererProcess(std::ostream& output) {
 
 			std::vector<std::unique_ptr<svg::Drawable>> picture_;   
 
-			RouteRender(picture_);                           // отрисовываем линии маршрутов
-			PointRender(picture_);                           // отрисовываем точки остановок
-			PointLabelRender(picture_);                      // отрисовываем названия остановок
+			RouteRender(picture_);                           // РѕС‚СЂРёСЃРѕРІС‹РІР°РµРј Р»РёРЅРёРё РјР°СЂС€СЂСѓС‚РѕРІ
+			PointRender(picture_);                           // РѕС‚СЂРёСЃРѕРІС‹РІР°РµРј С‚РѕС‡РєРё РѕСЃС‚Р°РЅРѕРІРѕРє
+			PointLabelRender(picture_);                      // РѕС‚СЂРёСЃРѕРІС‹РІР°РµРј РЅР°Р·РІР°РЅРёСЏ РѕСЃС‚Р°РЅРѕРІРѕРє
 
 			svg::Document map;
 			DrawPicture(picture_, map);
@@ -417,9 +515,9 @@ namespace transport_catalogue {
 		transport_catalogue::RendererData MapRenderer::StructRendererProcess() {
 			std::vector<std::unique_ptr<svg::Drawable>> picture_;
 
-			RouteRender(picture_);                           // отрисовываем линии маршрутов
-			PointRender(picture_);                           // отрисовываем точки остановок
-			PointLabelRender(picture_);                      // отрисовываем названия остановок
+			RouteRender(picture_);                           // РѕС‚СЂРёСЃРѕРІС‹РІР°РµРј Р»РёРЅРёРё РјР°СЂС€СЂСѓС‚РѕРІ
+			PointRender(picture_);                           // РѕС‚СЂРёСЃРѕРІС‹РІР°РµРј С‚РѕС‡РєРё РѕСЃС‚Р°РЅРѕРІРѕРє
+			PointLabelRender(picture_);                      // РѕС‚СЂРёСЃРѕРІС‹РІР°РµРј РЅР°Р·РІР°РЅРёСЏ РѕСЃС‚Р°РЅРѕРІРѕРє
 
 			std::stringstream output;
 			svg::Document map;
@@ -429,7 +527,7 @@ namespace transport_catalogue {
 			return { output.str() };
 		}
 
-		// возвращает следующий цвет из цветовой палитры
+		// РІРѕР·РІСЂР°С‰Р°РµС‚ СЃР»РµРґСѓСЋС‰РёР№ С†РІРµС‚ РёР· С†РІРµС‚РѕРІРѕР№ РїР°Р»РёС‚СЂС‹
 		const svg::Color MapRenderer::GetColorFromPallete() {
 			if (_pallette_item == _settings._color_palette.size())
 			{
@@ -438,7 +536,7 @@ namespace transport_catalogue {
 			return _settings._color_palette[_pallette_item++];
 		}
 
-		// сбрасывает счетчик элементов палитры
+		// СЃР±СЂР°СЃС‹РІР°РµС‚ СЃС‡РµС‚С‡РёРє СЌР»РµРјРµРЅС‚РѕРІ РїР°Р»РёС‚СЂС‹
 		void MapRenderer::ResetPallette() {
 			_pallette_item = 0;
 		}

@@ -1,19 +1,19 @@
-/////////////////////////////////////////////////////////////////////////////////////////////////
+п»ї/////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                             //
 //        class JsonReader                                                                     //
-//        Несамостоятельныый модуль-класс - базовый I/O класс программы                        //
-//        Основной функционал - получение, парсинг и обработка JSON запросов                   //
-//        Для данной реализации является точкой входа программы                                //
-//        Требования и зависимости:                                                            //
-//           1. request_handler.h - обработчик запросов к базе, роутеру и рендеру              //
-//           2. json_builder.h - конструктор и библиотека рабы с JSON объектами                //
+//        РќРµСЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅС‹С‹Р№ РјРѕРґСѓР»СЊ-РєР»Р°СЃСЃ - Р±Р°Р·РѕРІС‹Р№ I/O РєР»Р°СЃСЃ РїСЂРѕРіСЂР°РјРјС‹                        //
+//        РћСЃРЅРѕРІРЅРѕР№ С„СѓРЅРєС†РёРѕРЅР°Р» - РїРѕР»СѓС‡РµРЅРёРµ, РїР°СЂСЃРёРЅРі Рё РѕР±СЂР°Р±РѕС‚РєР° JSON Р·Р°РїСЂРѕСЃРѕРІ                   //
+//        Р”Р»СЏ РґР°РЅРЅРѕР№ СЂРµР°Р»РёР·Р°С†РёРё СЏРІР»СЏРµС‚СЃСЏ С‚РѕС‡РєРѕР№ РІС…РѕРґР° РїСЂРѕРіСЂР°РјРјС‹                                //
+//        РўСЂРµР±РѕРІР°РЅРёСЏ Рё Р·Р°РІРёСЃРёРјРѕСЃС‚Рё:                                                            //
+//           1. request_handler.h - РѕР±СЂР°Р±РѕС‚С‡РёРє Р·Р°РїСЂРѕСЃРѕРІ Рє Р±Р°Р·Рµ, СЂРѕСѓС‚РµСЂСѓ Рё СЂРµРЅРґРµСЂСѓ              //
+//           2. json_builder.h - РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Рё Р±РёР±Р»РёРѕС‚РµРєР° СЂР°Р±РѕС‚С‹ СЃ JSON РѕР±СЉРµРєС‚Р°РјРё              //
 //           3. C++17 (STL)                                                                    //
 //                                                                                             // 
 //        class JsonPrinter                                                                    //
-//        Несамостоятельныый модуль-класс - базовый I/O класс                                  //
-//        Основной функционал - вывод информации в заданый поток                               //
-//        Требования и зависимости:                                                            //
-//           1. json_builder.h - конструктор и библиотека рабы с JSON объектами                //
+//        РќРµСЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅС‹С‹Р№ РјРѕРґСѓР»СЊ-РєР»Р°СЃСЃ - Р±Р°Р·РѕРІС‹Р№ I/O РєР»Р°СЃСЃ                                  //
+//        РћСЃРЅРѕРІРЅРѕР№ С„СѓРЅРєС†РёРѕРЅР°Р» - РІС‹РІРѕРґ РёРЅС„РѕСЂРјР°С†РёРё РІ Р·Р°РґР°РЅС‹Р№ РїРѕС‚РѕРє                               //
+//        РўСЂРµР±РѕРІР°РЅРёСЏ Рё Р·Р°РІРёСЃРёРјРѕСЃС‚Рё:                                                            //
+//           1. json_builder.h - РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Рё Р±РёР±Р»РёРѕС‚РµРєР° СЂР°Р±РѕС‚С‹ СЃ JSON РѕР±СЉРµРєС‚Р°РјРё              //
 //           2. C++17 (STL)                                                                    //
 //                                                                                             // 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,6 +28,7 @@
 #include <sstream>
 #include <cassert>
 #include <optional>
+#include <fstream>
 
 
 using namespace std::literals;
@@ -38,32 +39,39 @@ namespace transport_catalogue {
 
         namespace detail {
 
-            json::Document LoadJson(const std::string&);                                           // загрузка JSON из переданной строки
-            json::Document LoadJson(std::istream&);                                                // загрузка JSON из переданного потока
+            json::Document LoadJson(const std::string&);                                           // Р·Р°РіСЂСѓР·РєР° JSON РёР· РїРµСЂРµРґР°РЅРЅРѕР№ СЃС‚СЂРѕРєРё
+            json::Document LoadJson(std::istream&);                                                // Р·Р°РіСЂСѓР·РєР° JSON РёР· РїРµСЂРµРґР°РЅРЅРѕРіРѕ РїРѕС‚РѕРєР°
 
-            std::string PrintJson(const json::Node&);                                              // печать Node и вывод в std::string
-            std::ostream& operator<<(std::ostream&, const json::Node&);                            // прямой вывод Node в поток
+            std::string PrintJson(const json::Node&);                                              // РїРµС‡Р°С‚СЊ Node Рё РІС‹РІРѕРґ РІ std::string
+            std::ostream& operator<<(std::ostream&, const json::Node&);                            // РїСЂСЏРјРѕР№ РІС‹РІРѕРґ Node РІ РїРѕС‚РѕРє
 
         } // namespace detail
 
-
-        // блок вывода информации
+        // Р±Р»РѕРє РІС‹РІРѕРґР° РёРЅС„РѕСЂРјР°С†РёРё
         class JsonPrinter {
         public:
 
-            void AddDocument(const json::Node& node);                                               // добавление документа в принтер
+            void AddDocument(const json::Node& node);                                               // РґРѕР±Р°РІР»РµРЅРёРµ РґРѕРєСѓРјРµРЅС‚Р° РІ РїСЂРёРЅС‚РµСЂ
 
-            json::Document RouteReportNodeMaker(size_t, transport_catalogue::RouteStatPtr);         // получение json-результата по маршрутам
-            json::Document StopReportNodeMaker(size_t, transport_catalogue::StopStatPtr);           // получение json-результата по остановкам
-            json::Document TransportRouterNodeMaker(size_t, transport_catalogue::RouterData);       // получение json-результата по роутеру
-            json::Document MapRendererNodeMaker(size_t, transport_catalogue::RendererData);         // получение json-результата по рендеру
+            json::Document RouteReportNodeMaker(size_t, transport_catalogue::RouteStatPtr);         // РїРѕР»СѓС‡РµРЅРёРµ json-СЂРµР·СѓР»СЊС‚Р°С‚Р° РїРѕ РјР°СЂС€СЂСѓС‚Р°Рј
+            json::Document StopReportNodeMaker(size_t, transport_catalogue::StopStatPtr);           // РїРѕР»СѓС‡РµРЅРёРµ json-СЂРµР·СѓР»СЊС‚Р°С‚Р° РїРѕ РѕСЃС‚Р°РЅРѕРІРєР°Рј
+            json::Document TransportRouterNodeMaker(size_t, transport_catalogue::RouterData);       // РїРѕР»СѓС‡РµРЅРёРµ json-СЂРµР·СѓР»СЊС‚Р°С‚Р° РїРѕ СЂРѕСѓС‚РµСЂСѓ
+            json::Document MapRendererNodeMaker(size_t, transport_catalogue::RendererData);         // РїРѕР»СѓС‡РµРЅРёРµ json-СЂРµР·СѓР»СЊС‚Р°С‚Р° РїРѕ СЂРµРЅРґРµСЂСѓ
 
-            JsonPrinter& PrintResult(std::ostream&);                                                // вывод принтера
+            JsonPrinter& PrintResult(std::ostream&);                                                // РІС‹РІРѕРґ РїСЂРёРЅС‚РµСЂР°
+            JsonPrinter& ClearPrinterBase();                                                        // РѕС‡РёСЃС‚РёС‚СЊ Р±Р°Р·Сѓ РїСЂРёРЅС‚РµСЂР° СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ
 
         private:
             json::Array _json_base = {};
         };
 
+        enum ProgramMode {
+            test_mode,                      // СЂРµР¶РёРј СЂР°Р±РѕС‚С‹ РІ СЂРµР¶РёРјРµ РѕР¶РёРґР°РЅРёСЏ Рё РІС‹Р·РѕРІР° С‚РµСЃС‚РѕРІ
+            simple_mode,                    // СЂРµР¶РёРј СЂР°Р±РѕС‚С‹ СЃ СЂР°Р·РѕРІС‹Рј РїСЂРѕСЃС‚С‹Рј Р±Р»РѕРєРѕРј Р·Р°РїСЂРѕСЃРѕРІ. РЎРїСЂРёРЅС‚ 12. РС‚РѕРіРѕРІРѕРµ
+            make_base_mode,                 // СЂРµР¶РёРј СЂР°Р±РѕС‚С‹ СЃ СЃРµСЂРёР°Р»РёР·Р°С†РёРµР№ РґР°РЅРЅС‹С… Рё Р±Р»РѕС‡РЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРѕР№. РЎРїСЂРёРЅС‚ 14. РС‚РѕРіРѕРІРѕРµ 3.
+            make_base_mode_vo_router,       // СЂРµР¶РёРј СЂР°Р±РѕС‚С‹ СЃ СЃРµСЂРёР°Р»РёР·Р°С†РёРµР№ РґР°РЅРЅС‹С… Рё Р±Р»РѕС‡РЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРѕР№. РЎРїСЂРёРЅС‚ 14. РС‚РѕРіРѕРІРѕРµ 1.
+            process_requests_mode           // СЂРµР¶РёРј СЂР°Р±РѕС‚С‹ СЃ СЃРµСЂРёР°Р»РёР·Р°С†РёРµР№ РґР°РЅРЅС‹С… Рё Р±Р»РѕС‡РЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРѕР№. РЎРїСЂРёРЅС‚ 14. РС‚РѕРіРѕРІРѕРµ 1.
+        };
 
         class JsonReader {
 
@@ -71,46 +79,62 @@ namespace transport_catalogue {
 
             std::istream& _input;
             std::ostream& _output;
-            transport_catalogue::json_reader::JsonPrinter _printer;                    // собственный принтер для вывода результатов
-            transport_catalogue::request_handler::RequestHandler _handler;             // обработчик запросов к базе данных транспортного каталога
+            transport_catalogue::json_reader::JsonPrinter _printer;                    // СЃРѕР±СЃС‚РІРµРЅРЅС‹Р№ РїСЂРёРЅС‚РµСЂ РґР»СЏ РІС‹РІРѕРґР° СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ
+            transport_catalogue::request_handler::RequestHandler _handler;             // РѕР±СЂР°Р±РѕС‚С‡РёРє Р·Р°РїСЂРѕСЃРѕРІ Рє Р±Р°Р·Рµ РґР°РЅРЅС‹С… С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР°
 
         public:
-            JsonReader(std::istream&, std::ostream&);
-            JsonReader& single_block_process();                                                      // запуск работы в режиме обработки одного блока
+            JsonReader(std::istream&, std::ostream&);                                  // Р·Р°РїСѓСЃРєР°РµС‚ Р±Р°Р·РѕРІС‹Р№ СЂРµР¶РёРј СЂР°Р±РѕС‚С‹
+            JsonReader(std::istream&, std::ostream&, ProgramMode);                     // Р·Р°РїСѓСЃРєР°РµС‚ СЂРµР¶РёРј РїРѕ РїРµСЂРµРґР°РЅРЅРѕРјСѓ Р°СЂРіСѓРјРµРЅС‚Сѓ
 
-            // TODO
-            // Можно добавить режим работы в несколько блоков
+            JsonReader& test_mode();                                    // Р·Р°РїСѓСЃРє СЂР°Р±РѕС‚С‹ РІ СЂРµР¶РёРјРµ РѕР¶РёРґР°РЅРёСЏ Рё РІС‹Р·РѕРІР° С‚РµСЃС‚РѕРІ
+            JsonReader& single_block_mode();                            // Р·Р°РїСѓСЃРє СЂР°Р±РѕС‚С‹ РІ СЂРµР¶РёРјРµ РѕР±СЂР°Р±РѕС‚РєРё РѕРґРЅРѕРіРѕ Р±Р»РѕРєР°. РЎРїСЂРёРЅС‚ 12. РС‚РѕРіРѕРІРѕРµ
+            JsonReader& make_base_mode();                               // Р·Р°РїСѓСЃРє СЂР°Р±РѕС‚С‹ РІ СЂРµР¶РёРјРµ РѕР±СЂР°Р±РѕС‚РєРё make_base. РЎРїСЂРёРЅС‚ 14. РС‚РѕРіРѕРІРѕРµ 3.
+            JsonReader& make_base_mode_vo_router();                     // Р·Р°РїСѓСЃРє СЂР°Р±РѕС‚С‹ РІ СЂРµР¶РёРјРµ РѕР±СЂР°Р±РѕС‚РєРё make_base Р±РµР· СЂРѕСѓС‚РµСЂР°. РЎРїСЂРёРЅС‚ 14. РС‚РѕРіРѕРІРѕРµ 1.
+            JsonReader& process_requests_mode();                        // Р·Р°РїСѓСЃРє СЂР°Р±РѕС‚С‹ РІ СЂРµР¶РёРјРµ РѕР±СЂР°Р±РѕС‚РєРё process_requests. РЎРїСЂРёРЅС‚ 14. РС‚РѕРіРѕРІРѕРµ 1.
+
+            JsonReader& reset_all_modules();                            // СЃР±СЂРѕСЃРёС‚СЊ СЃРѕСЃС‚РѕСЏРЅРёРµ РІСЃРµС… РєРѕРјРїРѕРЅРµРЅС‚РѕРІ РїСЂРѕРіСЂР°РјРјС‹, РїСЂРёРјРµРЅСЏРµС‚СЃСЏ РґР»СЏ Р±Р»РѕРєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ
 
         private:
-            std::deque<json::Dict> _json_dicts;                                                      // история полученных JSON-блоков
-            std::deque<transport_catalogue::JsonRequest> _json_requests_history;                     // история поступивших запросов JSON-формата
-            // мап текущих к обработке запросов JSON-формата
+            std::deque<json::Dict> _json_dicts;                                                      // РёСЃС‚РѕСЂРёСЏ РїРѕР»СѓС‡РµРЅРЅС‹С… JSON-Р±Р»РѕРєРѕРІ
+            std::deque<transport_catalogue::JsonRequest> _json_requests_history;                     // РёСЃС‚РѕСЂРёСЏ РїРѕСЃС‚СѓРїРёРІС€РёС… Р·Р°РїСЂРѕСЃРѕРІ JSON-С„РѕСЂРјР°С‚Р°
+            // РјР°Рї С‚РµРєСѓС‰РёС… Рє РѕР±СЂР°Р±РѕС‚РєРµ Р·Р°РїСЂРѕСЃРѕРІ JSON-С„РѕСЂРјР°С‚Р°
             std::map<transport_catalogue::RequestType, std::deque<transport_catalogue::JsonRequestPtr>> _current_json_requests = {};
 
-            json::Node LoadJson(const std::string&);                                                 // загрузка JSON из переданной строки
-            json::Node LoadJson(std::istream&);                                                      // загрузка JSON из переданного потока
+            json::Node LoadJson(const std::string&);                                                 // Р·Р°РіСЂСѓР·РєР° JSON РёР· РїРµСЂРµРґР°РЅРЅРѕР№ СЃС‚СЂРѕРєРё
+            json::Node LoadJson(std::istream&);                                                      // Р·Р°РіСЂСѓР·РєР° JSON РёР· РїРµСЂРµРґР°РЅРЅРѕРіРѕ РїРѕС‚РѕРєР°
 
-            // ---------------------------------------- парсеры запросов -------------------------------------------------------------------------------
+            // ---------------------------------------- РїР°СЂСЃРµСЂС‹ Р·Р°РїСЂРѕСЃРѕРІ -------------------------------------------------------------------------------
 
-            void AddRouteParser(transport_catalogue::JsonRequestPtr, const json::Dict&);             // парсинг запроса на добавление маршрута
-            void AddStopParser(transport_catalogue::JsonRequestPtr, const json::Dict&);              // парсинг запроса на добавление остановки
+            std::string FileNameParser(const json::Dict&);                                           // РїР°СЂСЃРёРЅРі РёРјРµРЅРё С„Р°Р№Р»Р° РґР»СЏ СЃРµСЂРёР°Р»РёР·Р°С†РёРё
 
-            void BaseRequestParser(transport_catalogue::JsonRequestPtr, const json::Dict&);          // парсинг запросов на добавление информации
-            void StatRequestParser(transport_catalogue::JsonRequestPtr, const json::Dict&);          // парсинг запроса на получение информации
+            void AddRouteParser(transport_catalogue::JsonRequestPtr, const json::Dict&);             // РїР°СЂСЃРёРЅРі Р·Р°РїСЂРѕСЃР° РЅР° РґРѕР±Р°РІР»РµРЅРёРµ РјР°СЂС€СЂСѓС‚Р°
+            void AddStopParser(transport_catalogue::JsonRequestPtr, const json::Dict&);              // РїР°СЂСЃРёРЅРі Р·Р°РїСЂРѕСЃР° РЅР° РґРѕР±Р°РІР»РµРЅРёРµ РѕСЃС‚Р°РЅРѕРІРєРё
 
-            void RendererSetupParser(transport_catalogue::map_renderer::RendererSettings&, const json::Dict&);       // парсинг настрек рендера карт
-            void RouterSetupParser(transport_catalogue::router::RouterSettings&, const json::Dict&);                 // парсинг настроек роутера маршрутов
+            void BaseRequestParser(transport_catalogue::JsonRequestPtr, const json::Dict&);          // РїР°СЂСЃРёРЅРі Р·Р°РїСЂРѕСЃРѕРІ РЅР° РґРѕР±Р°РІР»РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё
+            void StatRequestParser(transport_catalogue::JsonRequestPtr, const json::Dict&);          // РїР°СЂСЃРёРЅРі Р·Р°РїСЂРѕСЃР° РЅР° РїРѕР»СѓС‡РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё
 
-            // ---------------------------------------- блок процессинга -------------------------------------------------------------------------------
+            void RendererSetupParser(transport_catalogue::map_renderer::RendererSettings&, const json::Dict&);       // РїР°СЂСЃРёРЅРі РЅР°СЃС‚СЂРµРє СЂРµРЅРґРµСЂР° РєР°СЂС‚
+            void RouterSetupParser(transport_catalogue::router::RouterSettings&, const json::Dict&);                 // РїР°СЂСЃРёРЅРі РЅР°СЃС‚СЂРѕРµРє СЂРѕСѓС‚РµСЂР° РјР°СЂС€СЂСѓС‚РѕРІ
 
-            JsonReader& BaseRequestProcessor(const json::Array&);                                    // обработка блоков загрузки информации
-            JsonReader& RendererSetupProcessor(const json::Dict&);                                   // обработка блока загрузки настройки рендера
-            JsonReader& RouterSetupProcessor(const json::Dict&);                                     // обработка блока загрузки настройки роутера
-            JsonReader& StatsRequestProcessor(const json::Array&);                                   // обработка блоков получения информации
-            JsonReader& PrintResultProcessor(std::ostream&);                                         // печать информации после обработки вывода
+            // ---------------------------------------- Р±Р»РѕРє РїСЂРѕС†РµСЃСЃРёРЅРіР° -------------------------------------------------------------------------------
 
-            JsonReader& RequestProcessSplitter(const json::Dict&);                                   // сплиттер блоков запросов
-            std::optional<json::Dict> JsonBlockReading();                                            // чтение JSON блока из потока
+            JsonReader& BaseRequestProcessor(const json::Array&);                                    // РѕР±СЂР°Р±РѕС‚РєР° Р±Р»РѕРєРѕРІ Р·Р°РіСЂСѓР·РєРё РёРЅС„РѕСЂРјР°С†РёРё
+            JsonReader& RendererSetupProcessor(const json::Dict&);                                   // РѕР±СЂР°Р±РѕС‚РєР° Р±Р»РѕРєР° Р·Р°РіСЂСѓР·РєРё РЅР°СЃС‚СЂРѕР№РєРё СЂРµРЅРґРµСЂР°
+            JsonReader& RouterSetupProcessor(const json::Dict&);                                     // РѕР±СЂР°Р±РѕС‚РєР° Р±Р»РѕРєР° Р·Р°РіСЂСѓР·РєРё РЅР°СЃС‚СЂРѕР№РєРё СЂРѕСѓС‚РµСЂР°
+            JsonReader& StatsRequestProcessor(const json::Array&);                                   // РѕР±СЂР°Р±РѕС‚РєР° Р±Р»РѕРєРѕРІ РїРѕР»СѓС‡РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё
+            JsonReader& PrintResultProcessor(std::ostream&);                                         // РїРµС‡Р°С‚СЊ РёРЅС„РѕСЂРјР°С†РёРё РїРѕСЃР»Рµ РѕР±СЂР°Р±РѕС‚РєРё РІС‹РІРѕРґР°
+
+            // ---------------------------------------- Р±Р°Р·РѕРІС‹Р№ СЃРїР»РёС‚С‚РµСЂ РєРѕРјР°РЅРґ РёР· JSON ----------------------------------------------------------------
+
+            JsonReader& SimpleModeSplitter(const json::Dict&);                                       // СЃРїР»РёС‚С‚РµСЂ Р±Р»РѕРєРѕРІ Р·Р°РїСЂРѕСЃРѕРІ Р±Р°Р·РѕРІРѕРіРѕ СЂРµР¶РёРјР°
+
+            // ---------------------------------------- СЃРїР»РёС‚РµСЂС‹ СЂРµР¶РёРјР° СЃРµСЂРёР°Р»РёР·Р°С†РёРё РґР°РЅРЅС‹С… ------------------------------------------------------------
+
+            JsonReader& MakeBaseModeSplitter(const json::Dict&);                                     // СЃРїР»РёС‚С‚РµСЂ Р±Р»РѕРєРѕРІ Р·Р°РїСЂРѕСЃРѕРІ РЅР° СЃРѕР·РґР°РЅРёРµ Р±Р°Р·С‹
+            JsonReader& MakeBaseModeVORSplitter(const json::Dict&);                                  // СЃРїР»РёС‚С‚РµСЂ Р±Р»РѕРєРѕРІ Р·Р°РїСЂРѕСЃРѕРІ РЅР° СЃРѕР·РґР°РЅРёРµ Р±Р°Р·С‹ Р±РµР· РґР°РЅРЅС‹С… СЂРѕСѓС‚РµСЂР°
+            JsonReader& RequestProcessModeSplitter(const json::Dict&);                               // СЃРїР»РёС‚С‚РµСЂ Р±Р»РѕРєРѕРІ Р·Р°РїСЂРѕСЃРѕРІ РЅР° РїРѕР»СѓС‡РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё
+
+            std::optional<json::Dict> JsonBlockReading();                                            // С‡С‚РµРЅРёРµ JSON Р±Р»РѕРєР° РёР· РїРѕС‚РѕРєР°
 
         };
 

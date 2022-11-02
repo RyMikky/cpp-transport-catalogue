@@ -1,9 +1,9 @@
-#include "transport_catalogue.h" 
+п»ї#include "transport_catalogue.h" 
 
 namespace transport_catalogue
 {
 
-	// Расчёт длины маршрута
+	// Р Р°СЃС‡С‘С‚ РґР»РёРЅС‹ РјР°СЂС€СЂСѓС‚Р°
 	void TransportCatalogue::RangeCalculate(Route& route) {
 		int stops_num = static_cast<int>(route._stops.size());
 		for (int i = 0; i < stops_num - 1; ++i) {
@@ -13,100 +13,115 @@ namespace transport_catalogue
 		route._curvature = route._real_route_length / route._geo_route_length;
 	}
 
-	// Добавить остановку
-	void TransportCatalogue::AddStopsProcess(Stop&& stop) {
-		// добавляем если такой остановки нет в базе
+	// Р”РѕР±Р°РІРёС‚СЊ РѕСЃС‚Р°РЅРѕРІРєСѓ
+	void TransportCatalogue::AddStop(Stop&& stop) {
+		// РґРѕР±Р°РІР»СЏРµРј РµСЃР»Рё С‚Р°РєРѕР№ РѕСЃС‚Р°РЅРѕРІРєРё РЅРµС‚ РІ Р±Р°Р·Рµ
 		if (_all_stops_map.count(GetStopName(&stop)) == 0) {
-			// заполнение основной бащы
+			// Р·Р°РїРѕР»РЅРµРЅРёРµ РѕСЃРЅРѕРІРЅРѕР№ Р±Р°С‰С‹
 			auto& ref = _all_stops_data.emplace_back(std::move(stop));
-			// заполнение базы для роутера
+			// Р·Р°РїРѕР»РЅРµРЅРёРµ Р±Р°Р·С‹ РґР»СЏ СЂРѕСѓС‚РµСЂР°
 			_all_stops_to_router.push_back(&ref);
-			// заполнение мапы для ускоренного поиска
+			// Р·Р°РїРѕР»РЅРµРЅРёРµ РјР°РїС‹ РґР»СЏ СѓСЃРєРѕСЂРµРЅРЅРѕРіРѕ РїРѕРёСЃРєР°
 			_all_stops_map.insert({ std::string_view(ref._name), &ref });
 		}
 	}
 
-	// Добавить маршрут
+	// Р”РѕР±Р°РІРёС‚СЊ РјР°СЂС€СЂСѓС‚
 	void TransportCatalogue::AddRoute(Route&& route) {
-		// добавляем если такого маршрута нет в базе
+		// РґРѕР±Р°РІР»СЏРµРј РµСЃР»Рё С‚Р°РєРѕРіРѕ РјР°СЂС€СЂСѓС‚Р° РЅРµС‚ РІ Р±Р°Р·Рµ
 		if (_all_buses_map.count(route._route_name) == 0) {
-			// заполнение основной базы
+			// Р·Р°РїРѕР»РЅРµРЅРёРµ РѕСЃРЅРѕРІРЅРѕР№ Р±Р°Р·С‹
 			auto& ref = _all_buses_data.emplace_back(std::move(route));
-			// заполнение базы для роутера
+			// Р·Р°РїРѕР»РЅРµРЅРёРµ Р±Р°Р·С‹ РґР»СЏ СЂРѕСѓС‚РµСЂР°
 			_all_buses_to_router.push_back(&ref);
-			// заполнение мапы для ускоренного поиска
+			// Р·Р°РїРѕР»РЅРµРЅРёРµ РјР°РїС‹ РґР»СЏ СѓСЃРєРѕСЂРµРЅРЅРѕРіРѕ РїРѕРёСЃРєР°
 			_all_buses_map.insert({ std::string_view(ref._route_name), &ref });
 
-			// вычисляем количество уникальных остановок
+			// РІС‹С‡РёСЃР»СЏРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ СѓРЅРёРєР°Р»СЊРЅС‹С… РѕСЃС‚Р°РЅРѕРІРѕРє
 			std::vector<StopPtr> tmp = ref._stops;
 			std::sort(tmp.begin(), tmp.end());
 			auto last = std::unique(tmp.begin(), tmp.end());
-			// может быть два случая, когда конечная остановка равна начальной и когда все остановки уникальны
+			// РјРѕР¶РµС‚ Р±С‹С‚СЊ РґРІР° СЃР»СѓС‡Р°СЏ, РєРѕРіРґР° РєРѕРЅРµС‡РЅР°СЏ РѕСЃС‚Р°РЅРѕРІРєР° СЂР°РІРЅР° РЅР°С‡Р°Р»СЊРЅРѕР№ Рё РєРѕРіРґР° РІСЃРµ РѕСЃС‚Р°РЅРѕРІРєРё СѓРЅРёРєР°Р»СЊРЅС‹
 			ref._unique_stops_qty = (last != tmp.end() ? std::distance(tmp.begin(), last) : tmp.size());
 
-			// проверка типа маршрута
+			// РїСЂРѕРІРµСЂРєР° С‚РёРїР° РјР°СЂС€СЂСѓС‚Р°
 			if (!ref._is_circular) {
-				// достраиваем обратный маршрут для расчёта расстояния
+				// РґРѕСЃС‚СЂР°РёРІР°РµРј РѕР±СЂР°С‚РЅС‹Р№ РјР°СЂС€СЂСѓС‚ РґР»СЏ СЂР°СЃС‡С‘С‚Р° СЂР°СЃСЃС‚РѕСЏРЅРёСЏ
 				for (int i = ref._stops.size() - 2; i >= 0; --i) {
 					ref._stops.push_back(ref._stops[i]);
 				}
 			}
 
-			// расчёт длины маршрута
+			// СЂР°СЃС‡С‘С‚ РґР»РёРЅС‹ РјР°СЂС€СЂСѓС‚Р°
 			if (ref._stops.size() > 1) {
 				RangeCalculate(ref);
 			}
 		}
 	}
 
-	// Добавить дистанцию между остановками
-	void TransportCatalogue::AddDistance(StopPtr stop_from, StopPtr stop_to, size_t dist) {
-		if (stop_from != nullptr && stop_to != nullptr) {
-			_distances_map.insert({ { stop_from, stop_to }, dist });
+	// Р”РѕР±Р°РІРёС‚СЊ РјР°СЂС€СЂСѓС‚ РёР· Р±Р»РѕРєР° СЃРµСЂРёР°Р»РёР·Р°С†РёРё
+	void TransportCatalogue::AddRouteFromSerializer(Route&& route) {
+		// РґРѕР±Р°РІР»СЏРµРј РµСЃР»Рё С‚Р°РєРѕРіРѕ РјР°СЂС€СЂСѓС‚Р° РЅРµС‚ РІ Р±Р°Р·Рµ
+		if (_all_buses_map.count(route._route_name) == 0) {
+			// Р·Р°РїРѕР»РЅРµРЅРёРµ РѕСЃРЅРѕРІРЅРѕР№ Р±Р°Р·С‹
+			auto& ref = _all_buses_data.emplace_back(std::move(route));
+			// Р·Р°РїРѕР»РЅРµРЅРёРµ Р±Р°Р·С‹ РґР»СЏ СЂРѕСѓС‚РµСЂР°
+			_all_buses_to_router.push_back(&ref);
+			// Р·Р°РїРѕР»РЅРµРЅРёРµ РјР°РїС‹ РґР»СЏ СѓСЃРєРѕСЂРµРЅРЅРѕРіРѕ РїРѕРёСЃРєР°
+			_all_buses_map.insert({ std::string_view(ref._route_name), &ref });
+
+			// РІ РјРµС‚РѕРґРµ РЅРµ РІС‹РїРѕР»РЅСЏСЋС‚СЃСЏ РјР°С‚РµРјР°С‚РёС‡РµСЃРєРёРµ СЂР°СЃС‡С‘С‚С‹ СЂР°СЃСЃС‚РѕСЏРЅРёР№ Рё С‚.Рї, С‚Р°Рє РєР°Рє РІ Р±Р°Р·Рµ РІСЃС‘ СѓР¶Рµ РµСЃС‚СЊ
 		}
 	}
 
-	// Получить количество остановок в базе
+	// Р”РѕР±Р°РІРёС‚СЊ РґРёСЃС‚Р°РЅС†РёСЋ РјРµР¶РґСѓ РѕСЃС‚Р°РЅРѕРІРєР°РјРё
+	void TransportCatalogue::AddDistance(StopPtr stop_from, StopPtr stop_to, size_t dist) {
+		if (stop_from != nullptr && stop_to != nullptr) {
+			_all_distances_map.insert({ { stop_from, stop_to }, dist });
+		}
+	}
+
+	// РџРѕР»СѓС‡РёС‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ РѕСЃС‚Р°РЅРѕРІРѕРє РІ Р±Р°Р·Рµ
 	size_t TransportCatalogue::GetStopsCount() const {
 		return _all_stops_data.size();
 	}
 
-	// Получить дистанцию в прямом или обратном направлении
+	// РџРѕР»СѓС‡РёС‚СЊ РґРёСЃС‚Р°РЅС†РёСЋ РІ РїСЂСЏРјРѕРј РёР»Рё РѕР±СЂР°С‚РЅРѕРј РЅР°РїСЂР°РІР»РµРЅРёРё
 	size_t TransportCatalogue::GetDistance(StopPtr stop_from, StopPtr stop_to) {
-		// получаем дистанцию в прямом направлении
+		// РїРѕР»СѓС‡Р°РµРј РґРёСЃС‚Р°РЅС†РёСЋ РІ РїСЂСЏРјРѕРј РЅР°РїСЂР°РІР»РµРЅРёРё
 		size_t result = GetDistanceSimple(stop_from, stop_to);
-		// ищем дистанцию в обратном направлении, если в прямом направлении равно "0"
+		// РёС‰РµРј РґРёСЃС‚Р°РЅС†РёСЋ РІ РѕР±СЂР°С‚РЅРѕРј РЅР°РїСЂР°РІР»РµРЅРёРё, РµСЃР»Рё РІ РїСЂСЏРјРѕРј РЅР°РїСЂР°РІР»РµРЅРёРё СЂР°РІРЅРѕ "0"
 		return (result > 0 ? result : GetDistanceSimple(stop_to, stop_from));
 	}
 
-	// Получить дистанцию в прямом направлении
+	// РџРѕР»СѓС‡РёС‚СЊ РґРёСЃС‚Р°РЅС†РёСЋ РІ РїСЂСЏРјРѕРј РЅР°РїСЂР°РІР»РµРЅРёРё
 	size_t TransportCatalogue::GetDistanceSimple(StopPtr stop_from, StopPtr stop_to) {
-		if (_distances_map.count({ stop_from, stop_to }) > 0) {
-			return _distances_map.at({ stop_from, stop_to });
+		if (_all_distances_map.count({ stop_from, stop_to }) > 0) {
+			return _all_distances_map.at({ stop_from, stop_to });
 		}
 		else {
 			return 0U;
 		}
 	}
 
-	// Вспомогательная функция privat-секции класса
+	// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅР°СЏ С„СѓРЅРєС†РёСЏ privat-СЃРµРєС†РёРё РєР»Р°СЃСЃР°
 	std::string_view TransportCatalogue::GetStopName(StopPtr stop_ptr) {
 		return std::string_view(stop_ptr->_name);
 	}
-	// Вспомогательная функция privat-секции класса
+	// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅР°СЏ С„СѓРЅРєС†РёСЏ privat-СЃРµРєС†РёРё РєР»Р°СЃСЃР°
 	std::string_view TransportCatalogue::GetStopName(const Stop stop) {
 		return std::string_view(stop._name);
 	}
-	// Вспомогательная функция privat-секции класса
+	// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅР°СЏ С„СѓРЅРєС†РёСЏ privat-СЃРµРєС†РёРё РєР»Р°СЃСЃР°
 	std::string_view TransportCatalogue::GetBusName(RoutePtr route_ptr) {
 		return std::string_view(route_ptr->_route_name);
 	}
-	// Вспомогательная функция privat-секции класса
+	// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅР°СЏ С„СѓРЅРєС†РёСЏ privat-СЃРµРєС†РёРё РєР»Р°СЃСЃР°
 	std::string_view TransportCatalogue::GetBusName(const Route route) {
 		return std::string_view(route._route_name);
 	}
 
-	// Возвращает указатель на остановку по ее имени
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РѕСЃС‚Р°РЅРѕРІРєСѓ РїРѕ РµРµ РёРјРµРЅРё
 	StopPtr TransportCatalogue::GetStopByName(const std::string_view stop_name) const {
 		if (_all_stops_map.count(stop_name) == 0) {
 			return nullptr;
@@ -116,7 +131,7 @@ namespace transport_catalogue
 		}
 	}
 
-	// Возвращает указатель на маршрут по его имени
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РјР°СЂС€СЂСѓС‚ РїРѕ РµРіРѕ РёРјРµРЅРё
 	RoutePtr TransportCatalogue::GetRouteByName(const std::string_view bus_name) const {
 		if (_all_buses_map.count(bus_name) == 0) {
 			return nullptr;
@@ -126,7 +141,7 @@ namespace transport_catalogue
 		}
 	}
 
-	// Возвращает указатель на результат запроса о маршруте
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЂРµР·СѓР»СЊС‚Р°С‚ Р·Р°РїСЂРѕСЃР° Рѕ РјР°СЂС€СЂСѓС‚Рµ
 	RouteStatPtr TransportCatalogue::GetRouteInfo(const std::string_view route_name) const {
 		RoutePtr ptr = GetRouteByName(route_name);
 		if (ptr == nullptr) {
@@ -136,7 +151,7 @@ namespace transport_catalogue
 			ptr->_real_route_length, ptr->_curvature, ptr->_route_name);
 	}
 
-	// Возвращает указатель на результат запроса о остановке
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЂРµР·СѓР»СЊС‚Р°С‚ Р·Р°РїСЂРѕСЃР° Рѕ РѕСЃС‚Р°РЅРѕРІРєРµ
 	StopStatPtr TransportCatalogue::GetBusesForStopInfo(const std::string_view stop_name) const {
 		StopPtr ptr = GetStopByName(stop_name);
 
@@ -157,7 +172,7 @@ namespace transport_catalogue
 		return new StopStat(stop_name, found_buses_sv);
 	}
 
-	// Возвращает данные для рендеринга маршрутов
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ РґР°РЅРЅС‹Рµ РґР»СЏ СЂРµРЅРґРµСЂРёРЅРіР° РјР°СЂС€СЂСѓС‚РѕРІ
 	std::map<std::string, RendererRequest> TransportCatalogue::GetDataToRenderer() {
 		std::map<std::string, RendererRequest> result;
 
@@ -171,14 +186,51 @@ namespace transport_catalogue
 		return result;
 	}
 
-	// Возвращает дек указателей на остановки для роутера
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ РґРµРє СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° РѕСЃС‚Р°РЅРѕРІРєРё РґР»СЏ СЂРѕСѓС‚РµСЂР°
 	const std::deque<StopPtr>& TransportCatalogue::GetAllStopsData() const {
 		return _all_stops_to_router;
 	}
 
-	// Возвращает дек указателей на маршруты для роутера
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ РґРµРє СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° РјР°СЂС€СЂСѓС‚С‹ РґР»СЏ СЂРѕСѓС‚РµСЂР°
 	const std::deque<RoutePtr>& TransportCatalogue::GetAllBusesData() const {
 		return _all_buses_to_router;
+	}
+
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ РјР°Рї СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° РѕСЃС‚Р°РЅРѕРІРєРё Рё СЂР°СЃСЃС‚РѕСЏРЅРёСЏ РјРµР¶РґСѓ РЅРёРјРё
+	const DistancesMap& TransportCatalogue::GetAllDistancesData() const {
+		return _all_distances_map;
+	}
+
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ С„Р»Р°Рі СЃРѕСЃС‚РѕСЏРЅРёСЏ РґР°РЅРЅС‹С… РєР°С‚Р°Р»РѕРіР°
+	CatalogueDataStatus TransportCatalogue::GetCatalogueDataStatus() const {
+		return _data_status;
+	}
+
+	// РќР°Р·РЅР°С‡РµРЅРёРµ С„Р»Р°РіР° СЃРѕСЃС‚РѕСЏРЅРёСЏ РґР°РЅРЅС‹С…
+	TransportCatalogue& TransportCatalogue::SetDataStatus(CatalogueDataStatus status) {
+		_data_status = status;
+		return *this;
+	}
+
+	// РћС‡РёС‰Р°РµС‚ РІСЃРµ РїРѕР»СЏ РєР»Р°СЃСЃР°;
+	bool TransportCatalogue::ClearAllData() {
+
+		if (_data_status == EMPTY) {
+			return false;
+		}
+
+		_all_distances_map.clear();                 // РѕС‡РёС‰Р°РµРј Р°Рї СЂР°СЃСЃС‚РѕСЏРЅРёСЏ РјРµР¶РґСѓ РѕСЃС‚Р°РЅРѕРІРєР°РјРё
+
+		_all_buses_map.clear();                     // РѕС‡РёР°РµРј РјР°Рї СѓРєР°Р·Р°С‚РµР»РµР№ РјР°СЂС€СЂСѓС‚РѕРІ РґР»СЏ Р±С‹СЃС‚СЂРѕРіРѕ РїРѕРёСЃРєР° РїРѕ Р±Р°Р·Рµ
+		_all_buses_to_router.clear();               // РѕС‡РёС‰Р°РµРј РјР°СЃСЃРёРІ СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° РјР°СЂС€СЂСѓС‚С‹ РґР»СЏ СЂРѕСѓС‚РµСЂР°
+		_all_buses_data.clear();                    // РѕС‡РёС‰Р°РµРј РѕСЃРЅРѕРІРЅРѕР№ РјР°СЃСЃРёРІ РјР°СЂС€СЂСѓС‚РѕРІ
+
+		_all_stops_map.clear();                     // РѕС‡РёС‰Р°РµРј РјР°Рї СѓРєР°Р·Р°С‚РµР»РµР№ РѕСЃС‚Р°РЅРѕРІРѕРє РґР»СЏ Р±С‹СЃС‚СЂРѕРіРѕ РїРѕРёСЃРєР° РїРѕ Р±Р°Р·Рµ
+		_all_stops_to_router.clear();               // РѕС‡РёС‰Р°РµРј РјР°СЃСЃРёРІ СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° РѕСЃС‚Р°РЅРѕРІРєРё РґР»СЏ СЂРѕСѓС‚РµСЂР°
+		_all_stops_data.clear();                    // РѕС‡РёС‰Р°РµРј РѕСЃРЅРѕРІРЅРѕР№ РјР°СЃСЃРёРІ РґР°РЅРЅС‹С… РїРѕ РѕСЃС‚Р°РЅРѕРІРєР°Рј
+
+		_data_status = EMPTY;
+		return true;
 	}
 
 } // namespace transport_catalogue

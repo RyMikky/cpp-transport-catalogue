@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include "json.h"
 
@@ -12,30 +12,30 @@ namespace json {
 	class KeyValueContext;
 	class ArrayValueContext;
 
-	// Блок вспомогательных классов-контекстов
+	// Р‘Р»РѕРє РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹С… РєР»Р°СЃСЃРѕРІ-РєРѕРЅС‚РµРєСЃС‚РѕРІ
 
-	// Вспомогательный родительский класс-контекст
+	// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ РєР»Р°СЃСЃ-РєРѕРЅС‚РµРєСЃС‚
 	class CommonContext {
 	public:
 		Builder& builder_;
 
-		CommonContext(json::Builder&);                           // конструктор класса
+		CommonContext(json::Builder&);                           // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєР»Р°СЃСЃР°
 
-		KeyContext Key(std::string);                             // задать ключ текущего словаря
-		CommonContext Value(json::Node::Value);                  // задать новое/следующее значение поизвольного типа
-		DictItemContext StartDict();                             // открыть новый словарь
-		ArrayItemContext StartArray();                           // открыть новый массив		
-		CommonContext EndDict();                                 // закрыть текущий открытый словарь
-		CommonContext EndArray();                                // закрыть текущий открытый массив
+		KeyContext Key(std::string);                             // Р·Р°РґР°С‚СЊ РєР»СЋС‡ С‚РµРєСѓС‰РµРіРѕ СЃР»РѕРІР°СЂСЏ
+		CommonContext Value(json::Node::Value);                  // Р·Р°РґР°С‚СЊ РЅРѕРІРѕРµ/СЃР»РµРґСѓСЋС‰РµРµ Р·РЅР°С‡РµРЅРёРµ РїРѕРёР·РІРѕР»СЊРЅРѕРіРѕ С‚РёРїР°
+		DictItemContext StartDict();                             // РѕС‚РєСЂС‹С‚СЊ РЅРѕРІС‹Р№ СЃР»РѕРІР°СЂСЊ
+		ArrayItemContext StartArray();                           // РѕС‚РєСЂС‹С‚СЊ РЅРѕРІС‹Р№ РјР°СЃСЃРёРІ		
+		CommonContext EndDict();                                 // Р·Р°РєСЂС‹С‚СЊ С‚РµРєСѓС‰РёР№ РѕС‚РєСЂС‹С‚С‹Р№ СЃР»РѕРІР°СЂСЊ
+		CommonContext EndArray();                                // Р·Р°РєСЂС‹С‚СЊ С‚РµРєСѓС‰РёР№ РѕС‚РєСЂС‹С‚С‹Р№ РјР°СЃСЃРёРІ
 
 		json::Node Build();
 	};
 
-	// Вспомогательный класс-контекст - значения ключа
+	// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РєР»Р°СЃСЃ-РєРѕРЅС‚РµРєСЃС‚ - Р·РЅР°С‡РµРЅРёСЏ РєР»СЋС‡Р°
 	class KeyValueContext : public CommonContext {
 	public:
 
-		// методы дублируют родительский класс
+		// РјРµС‚РѕРґС‹ РґСѓР±Р»РёСЂСѓСЋС‚ СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ РєР»Р°СЃСЃ
 
 		KeyValueContext(json::Builder&);
 		KeyValueContext(CommonContext);
@@ -49,11 +49,11 @@ namespace json {
 	private:
 	};
 
-	// Вспомогательный класс-контекст - ключ
+	// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РєР»Р°СЃСЃ-РєРѕРЅС‚РµРєСЃС‚ - РєР»СЋС‡
 	class KeyContext : public CommonContext {
 	public:
 
-		// методы дублируют родительский класс
+		// РјРµС‚РѕРґС‹ РґСѓР±Р»РёСЂСѓСЋС‚ СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ РєР»Р°СЃСЃ
 
 		KeyContext(json::Builder&);
 		KeyContext Key(std::string) = delete;
@@ -66,11 +66,11 @@ namespace json {
 	};
 
 
-	// Вспомогательный класс-контекст - словарь
+	// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РєР»Р°СЃСЃ-РєРѕРЅС‚РµРєСЃС‚ - СЃР»РѕРІР°СЂСЊ
 	class DictItemContext : public CommonContext {
 	public:
 		
-		// методы дублируют родительский класс
+		// РјРµС‚РѕРґС‹ РґСѓР±Р»РёСЂСѓСЋС‚ СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ РєР»Р°СЃСЃ
 
 		DictItemContext(json::Builder&);
 		KeyContext Key(std::string);
@@ -83,11 +83,11 @@ namespace json {
 	private:
 	};
 
-	// Вспомогательный класс-контекст - значения массива
+	// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РєР»Р°СЃСЃ-РєРѕРЅС‚РµРєСЃС‚ - Р·РЅР°С‡РµРЅРёСЏ РјР°СЃСЃРёРІР°
 	class ArrayValueContext : public CommonContext {
 	public:
 
-		// методы дублируют родительский класс
+		// РјРµС‚РѕРґС‹ РґСѓР±Р»РёСЂСѓСЋС‚ СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ РєР»Р°СЃСЃ
 
 		ArrayValueContext(json::Builder&);
 		ArrayValueContext(CommonContext);
@@ -101,11 +101,11 @@ namespace json {
 	private:
 	};
 
-	// Вспомогательный класс-контекст - массив
+	// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РєР»Р°СЃСЃ-РєРѕРЅС‚РµРєСЃС‚ - РјР°СЃСЃРёРІ
 	class ArrayItemContext : public CommonContext {
 	public:
 
-		// методы дублируют родительский класс
+		// РјРµС‚РѕРґС‹ РґСѓР±Р»РёСЂСѓСЋС‚ СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ РєР»Р°СЃСЃ
 
 		ArrayItemContext(json::Builder&);
 		KeyContext Key(std::string) = delete;
@@ -120,27 +120,27 @@ namespace json {
 
 
 	
-	// Основной класс-конструктор json-объектов
+	// РћСЃРЅРѕРІРЅРѕР№ РєР»Р°СЃСЃ-РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ json-РѕР±СЉРµРєС‚РѕРІ
 	class Builder { 	
 	public:
 
 		Builder() = default;
 		~Builder() = default;
 
-		KeyContext Key(std::string);                             // задать ключ текущего словаря
-		CommonContext Value(json::Node::Value);                  // задать новое/следующее значение поизвольного типа
-		DictItemContext StartDict();                             // открыть новый словарь
-		ArrayItemContext StartArray();                           // открыть новый массив		
-		CommonContext EndDict();                                 // закрыть текущий открытый словарь
-		CommonContext EndArray();                                // закрыть текущий открытый массив
+		KeyContext Key(std::string);                             // Р·Р°РґР°С‚СЊ РєР»СЋС‡ С‚РµРєСѓС‰РµРіРѕ СЃР»РѕРІР°СЂСЏ
+		CommonContext Value(json::Node::Value);                  // Р·Р°РґР°С‚СЊ РЅРѕРІРѕРµ/СЃР»РµРґСѓСЋС‰РµРµ Р·РЅР°С‡РµРЅРёРµ РїРѕРёР·РІРѕР»СЊРЅРѕРіРѕ С‚РёРїР°
+		DictItemContext StartDict();                             // РѕС‚РєСЂС‹С‚СЊ РЅРѕРІС‹Р№ СЃР»РѕРІР°СЂСЊ
+		ArrayItemContext StartArray();                           // РѕС‚РєСЂС‹С‚СЊ РЅРѕРІС‹Р№ РјР°СЃСЃРёРІ		
+		CommonContext EndDict();                                 // Р·Р°РєСЂС‹С‚СЊ С‚РµРєСѓС‰РёР№ РѕС‚РєСЂС‹С‚С‹Р№ СЃР»РѕРІР°СЂСЊ
+		CommonContext EndArray();                                // Р·Р°РєСЂС‹С‚СЊ С‚РµРєСѓС‰РёР№ РѕС‚РєСЂС‹С‚С‹Р№ РјР°СЃСЃРёРІ
 
-		json::Node Build();                                      // возвращает сконфигурированный корневой рут
+		json::Node Build();                                      // РІРѕР·РІСЂР°С‰Р°РµС‚ СЃРєРѕРЅС„РёРіСѓСЂРёСЂРѕРІР°РЅРЅС‹Р№ РєРѕСЂРЅРµРІРѕР№ СЂСѓС‚
 
 	private: 
-		json::Node root_ = nullptr;                              // основной рут
-		std::vector<Node*> nodes_stack_;                         // стак рутов при многоуровневой системе докумета
-		std::string key_;                                        // текущий ключ массива
-		bool key_is_open_ = false;                               // флажок открытия словаря. Есть ли ключ
+		json::Node root_ = nullptr;                              // РѕСЃРЅРѕРІРЅРѕР№ СЂСѓС‚
+		std::vector<Node*> nodes_stack_;                         // СЃС‚Р°Рє СЂСѓС‚РѕРІ РїСЂРё РјРЅРѕРіРѕСѓСЂРѕРІРЅРµРІРѕР№ СЃРёСЃС‚РµРјРµ РґРѕРєСѓРјРµС‚Р°
+		std::string key_;                                        // С‚РµРєСѓС‰РёР№ РєР»СЋС‡ РјР°СЃСЃРёРІР°
+		bool key_is_open_ = false;                               // С„Р»Р°Р¶РѕРє РѕС‚РєСЂС‹С‚РёСЏ СЃР»РѕРІР°СЂСЏ. Р•СЃС‚СЊ Р»Рё РєР»СЋС‡
 	};
 
 } // namespace json

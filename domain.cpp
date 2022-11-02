@@ -1,4 +1,4 @@
-#include "domain.h"
+п»ї#include "domain.h"
 
 namespace transport_catalogue {
 
@@ -15,6 +15,43 @@ namespace transport_catalogue {
 	bool Stop::operator==(const Stop& other) const {
 		return _name == other._name &&
 			_coords.lat == other._coords.lat && _coords.lng == other._coords.lng;
+	}
+
+	Stop& Stop::SetStopName(std::string_view stop_name) {
+		_name = std::string(stop_name);
+		return *this;
+	}
+
+	Stop& Stop::SetStopCoordinates(double lat, double lng) {
+		_coords.lat = lat;
+		_coords.lng = lng;
+		return *this;
+	}
+
+	Stop& Stop::SetStopCoordinates(const geo::Coordinates& coords) {
+		_coords = coords;
+		return *this;
+	}
+
+	Stop& Stop::SetStopCoordinates(geo::Coordinates&& coords) {
+		_coords = std::move(coords);
+		return *this;
+	}
+
+	const std::string& Stop::GetStopName() const {
+		return _name;
+	}
+
+	std::string Stop::GetStopName() {
+		return _name;
+	}
+
+	const geo::Coordinates& Stop::GetStopCoordinates() const {
+		return _coords;
+	}
+
+	geo::Coordinates Stop::GetStopCoordinates() {
+		return _coords;
 	}
 
 	std::size_t StopHasher::operator()(const StopPtr stop_point) const noexcept {
@@ -39,6 +76,69 @@ namespace transport_catalogue {
 		_unique_stops_qty(other->_unique_stops_qty), _geo_route_length(other->_geo_route_length),
 		_real_route_length(other->_real_route_length), _curvature(other->_curvature),
 		_is_circular(other->_is_circular) {
+	}
+
+	Route& Route::SetRouteName(std::string_view route_name) {
+		_route_name = std::string(route_name);
+		return *this;
+	}
+
+	Route& Route::SetStopsPtrs(std::vector<StopPtr>&& stops) {
+		_stops = std::move(stops);
+		return *this;
+	}
+
+	Route& Route::SetUniqueStopsQty(size_t unique) {
+		_unique_stops_qty = unique;
+		return *this;
+	}
+
+	Route& Route::SetGeoRouteLength(double geo_length) {
+		_geo_route_length = geo_length;
+		return *this;
+	}
+
+	Route& Route::SetRealRouteLength(size_t real_length) {
+		_real_route_length = real_length;
+		return *this;
+	}
+
+	Route& Route::SetCurvature(double curvature) {
+		_curvature = curvature;
+		return *this;
+	}
+
+	Route& Route::SetIsCircular(bool circular) {
+		_is_circular = circular;
+		return *this;
+	}
+
+	const std::string& Route::GetRouteName() const {
+		return _route_name;
+	}
+
+	const std::vector<StopPtr>& Route::GetStopsPtrs() const {
+		return _stops;
+	}
+
+	size_t Route::GetUniqueStopsQty() const {
+		return _unique_stops_qty;
+	}
+
+	double Route::GetGeoRouteLength() const {
+		return _geo_route_length;
+	}
+
+	size_t Route::GetRealRouteLength() const {
+		return _real_route_length;
+	}
+
+	double Route::GetCurvature() const {
+		return _curvature;
+	}
+
+	bool Route::GetIsCircular() const {
+		return _is_circular;
 	}
 
 	bool Route::operator==(const Route& other) const {
@@ -88,40 +188,40 @@ namespace transport_catalogue {
 
 	// ------------------------------- struct RouterItem -----------------------------------
 
-		// Задать название участка маршрута
+		// Р—Р°РґР°С‚СЊ РЅР°Р·РІР°РЅРёРµ СѓС‡Р°СЃС‚РєР° РјР°СЂС€СЂСѓС‚Р°
 	RouterItem& RouterItem::SetItemName(std::string_view name) {
 		_item_name = name;
 		return *this;
 	}
-	// Задать количество преодаленных остановок на маршруте
+	// Р—Р°РґР°С‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРµРѕРґР°Р»РµРЅРЅС‹С… РѕСЃС‚Р°РЅРѕРІРѕРє РЅР° РјР°СЂС€СЂСѓС‚Рµ
 	RouterItem& RouterItem::SetItemSpanCount(int count) {
 		_span_count = count;
 		return *this;
 	}
-	// Задать время прохождения участка маршрута
+	// Р—Р°РґР°С‚СЊ РІСЂРµРјСЏ РїСЂРѕС…РѕР¶РґРµРЅРёСЏ СѓС‡Р°СЃС‚РєР° РјР°СЂС€СЂСѓС‚Р°
 	RouterItem& RouterItem::SetItemTime(double time) {
 		_time = time;
 		return *this;
 	}
-	// Задать тип участка маршрута
+	// Р—Р°РґР°С‚СЊ С‚РёРї СѓС‡Р°СЃС‚РєР° РјР°СЂС€СЂСѓС‚Р°
 	RouterItem& RouterItem::SetItemEdgeType(graph::EdgeType type) {
 		_type = type;
 		return *this;
 	}
 
-	// Получить название участка маршрута
+	// РџРѕР»СѓС‡РёС‚СЊ РЅР°Р·РІР°РЅРёРµ СѓС‡Р°СЃС‚РєР° РјР°СЂС€СЂСѓС‚Р°
 	std::string_view RouterItem::GetItemName() const {
 		return _item_name;
 	}
-	// Получить количество преодаленных остановок на маршруте
+	// РџРѕР»СѓС‡РёС‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРµРѕРґР°Р»РµРЅРЅС‹С… РѕСЃС‚Р°РЅРѕРІРѕРє РЅР° РјР°СЂС€СЂСѓС‚Рµ
 	int RouterItem::GetItemSpanCount() const {
 		return _span_count;
 	}
-	// Получить время прохождения участка маршрута
+	// РџРѕР»СѓС‡РёС‚СЊ РІСЂРµРјСЏ РїСЂРѕС…РѕР¶РґРµРЅРёСЏ СѓС‡Р°СЃС‚РєР° РјР°СЂС€СЂСѓС‚Р°
 	double RouterItem::GetItemTime() const {
 		return _time;
 	}
-	// Получить тип участка маршрута
+	// РџРѕР»СѓС‡РёС‚СЊ С‚РёРї СѓС‡Р°СЃС‚РєР° РјР°СЂС€СЂСѓС‚Р°
 	graph::EdgeType RouterItem::GetItemType() const {
 		return _type;
 	}
@@ -129,4 +229,4 @@ namespace transport_catalogue {
 
 	// ------------------------------- struct RouterItem END -------------------------------
 
-}
+} // namespace transport_catalogue

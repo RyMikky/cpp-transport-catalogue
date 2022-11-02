@@ -1,4 +1,4 @@
-#include "transport_router.h"
+п»ї#include "transport_router.h"
 
 namespace transport_catalogue {
 
@@ -7,25 +7,32 @@ namespace transport_catalogue {
 		// ------------------------------- struct RouterSettings -------------------------------
 
 		RouterSettings::RouterSettings(size_t time, double velocity) 
-			: _bus_wait_time(time), _bus_velocity(velocity) {
+			: _bus_wait_time(time), _bus_velocity(velocity), _IsDefault(false) {
 		}
 
-		// Задать время ожидания автобуса
+		// РІРѕР·РІСЂР°С‰Р°РµС‚ С„Р»Р°Рі С‚РёРїР° РЅР°СЃС‚СЂРѕРµРє
+		bool RouterSettings::IsDefault() const {
+			return _IsDefault;
+		}
+
+		// Р—Р°РґР°С‚СЊ РІСЂРµРјСЏ РѕР¶РёРґР°РЅРёСЏ Р°РІС‚РѕР±СѓСЃР°
 		RouterSettings& RouterSettings::SetBusWaitTime(size_t time) {
 			_bus_wait_time = time;
+			_IsDefault = false;
 			return *this;
 		}
-		// Задать скорость движения автобуса
+		// Р—Р°РґР°С‚СЊ СЃРєРѕСЂРѕСЃС‚СЊ РґРІРёР¶РµРЅРёСЏ Р°РІС‚РѕР±СѓСЃР°
 		RouterSettings& RouterSettings::SetBusVelocity(double velocity) {
 			_bus_velocity = velocity;
+			_IsDefault = false;
 			return *this;
 		}
 
-		// Получить время ожидания автобуса
+		// РџРѕР»СѓС‡РёС‚СЊ РІСЂРµРјСЏ РѕР¶РёРґР°РЅРёСЏ Р°РІС‚РѕР±СѓСЃР°
 		size_t RouterSettings::GetBusWaitTime() const {
 			return _bus_wait_time;
 		}
-		// Получить скорость движения автобуса
+		// РџРѕР»СѓС‡РёС‚СЊ СЃРєРѕСЂРѕСЃС‚СЊ РґРІРёР¶РµРЅРёСЏ Р°РІС‚РѕР±СѓСЃР°
 		double RouterSettings::GetBusVelocity() const {
 			return _bus_velocity;
 		}
@@ -36,53 +43,92 @@ namespace transport_catalogue {
 
 		// ------------------------------- class TransportRouter -------------------------------
 
-		// конструктор для вызова из обработчика запросов
+		// РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ РІС‹Р·РѕРІР° РёР· РѕР±СЂР°Р±РѕС‚С‡РёРєР° Р·Р°РїСЂРѕСЃРѕРІ
 		TransportRouter::TransportRouter(transport_catalogue::TransportCatalogue& tc)
-			: _catalogue(tc), _graphs(tc.GetStopsCount() * 2) {
+			: _transport_catalogue(tc), _graphs(tc.GetStopsCount() * 2) {
 		}
 
-		// конструктор для вызова из обработчика запросов
+		// РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ РІС‹Р·РѕРІР° РёР· РѕР±СЂР°Р±РѕС‚С‡РёРєР° Р·Р°РїСЂРѕСЃРѕРІ
 		TransportRouter::TransportRouter(transport_catalogue::TransportCatalogue& tc, const RouterSettings& settings) 
-			: _catalogue(tc), _settings(settings), _graphs(tc.GetStopsCount() * 2) {
+			: _transport_catalogue(tc), _settings(settings), _graphs(tc.GetStopsCount() * 2) {
 		}
 
-		// конструктор для вызова из обработчика запросов
+		// РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ РІС‹Р·РѕРІР° РёР· РѕР±СЂР°Р±РѕС‚С‡РёРєР° Р·Р°РїСЂРѕСЃРѕРІ
 		TransportRouter::TransportRouter(transport_catalogue::TransportCatalogue& tc, RouterSettings&& settings)
-			: _catalogue(tc), _settings(std::move(settings)), _graphs(tc.GetStopsCount() * 2) {
+			: _transport_catalogue(tc), _settings(std::move(settings)), _graphs(tc.GetStopsCount() * 2) {
 		}
 
-		// загрузка настроек роутинга
+		// Р·Р°РіСЂСѓР·РєР° РЅР°СЃС‚СЂРѕРµРє СЂРѕСѓС‚РёРЅРіР°
 		TransportRouter& TransportRouter::SetRouterSettings(const RouterSettings& settings) {
 			_settings = settings;
 			return *this;
 		}
 
-		// загрузка настроек роутинга
+		// Р·Р°РіСЂСѓР·РєР° РЅР°СЃС‚СЂРѕРµРє СЂРѕСѓС‚РёРЅРіР°
 		TransportRouter& TransportRouter::SetRouterSettings(RouterSettings&& settings) {
 			_settings = std::move(settings);
 			return *this;
 		}
 
-		// загрузка настроек роутинга
+		// Р·Р°РіСЂСѓР·РєР° РЅР°СЃС‚СЂРѕРµРє СЂРѕСѓС‚РёРЅРіР°
 		TransportRouter& TransportRouter::SetRouterTransportCatalogue(transport_catalogue::TransportCatalogue& tc) {
-			_catalogue = tc;
+			_transport_catalogue = tc;
 			return *this;
 		}
 
+		// Р·Р°РіСЂСѓР·РёС‚СЊ РґР°РЅРЅС‹Рµ РїРѕ РіСЂР°С„Р°Рј
+		TransportRouter& TransportRouter::SetRouterGraphs(graph::DirectedWeightedGraph<double>&& graphs) {
+			_graphs = std::move(graphs);
+			return *this;
+		}
+
+		// Р·Р°РіСЂСѓР·РёС‚СЊ РґР°РЅРЅС‹Рµ С‚РѕС‡РµРє РѕР¶РёРґР°РЅРёСЏ СЂРѕСѓС‚РµСЂР°
+		TransportRouter& TransportRouter::SetRouterWaitPoints(std::unordered_map<std::string_view, size_t>&& wait_points) {
+			_wait_points = std::move(wait_points);
+			return *this;
+		}
+
+		// Р·Р°РіСЂСѓР·РёС‚СЊ РґР°РЅРЅС‹Рµ С‚РѕС‡РµРє РїРµСЂРµРјРµС‰РµРЅРёСЏ СЂРѕСѓС‚РµСЂР°
+		TransportRouter& TransportRouter::SetRouterMovePoints(std::unordered_map<std::string_view, size_t>&& move_points) {
+			_move_points = std::move(move_points);
+			return *this;
+		}
+
+		// СѓСЃС‚Р°РЅРѕРІРёС‚СЊ С„Р»Р°Рі СЃРѕСЃС‚РѕСЏРЅРёСЏ РґР°РЅРЅС‹С…
+		TransportRouter& TransportRouter::SetRouterDataStatus(RouterDataStatus status) {
+			_data_status = status;
+			return *this;
+		}
+
+		// РїРѕР»СѓС‡РёС‚СЊ РґР°РЅРЅС‹Рµ РіСЂР°С„РѕРІ СЂРѕСѓС‚РµСЂР°
+		const graph::DirectedWeightedGraph<double>& TransportRouter::GetRouterGraphs() const {
+			return _graphs;
+		}
+
+		// РїРѕР»СѓС‡РёС‚СЊ РґР°РЅРЅС‹Рµ С‚РѕС‡РµРє РѕР¶РёРґР°РЅРёСЏ СЂРѕСѓС‚РµСЂР°
+		const std::unordered_map<std::string_view, size_t>& TransportRouter::GetRouterWaitPoints() const {
+			return _wait_points;
+		}
+
+		// РїРѕР»СѓС‡РёС‚СЊ РґР°РЅРЅС‹Рµ С‚РѕС‡РµРє РїРµСЂРµРјРµС‰РµРЅРёСЏ СЂРѕСѓС‚РµСЂР°
+		const std::unordered_map<std::string_view, size_t>& TransportRouter::GetRouterMovePoints() const {
+			return _move_points;
+		}
+
 		transport_catalogue::RouterData TransportRouter::MakeRoute(std::string_view from, std::string_view to) {
-			// Проверяем наличие подготовленного роутера
+			// РџСЂРѕРІРµСЂСЏРµРј РЅР°Р»РёС‡РёРµ РїРѕРґРіРѕС‚РѕРІР»РµРЅРЅРѕРіРѕ СЂРѕСѓС‚РµСЂР°
 			if (!_router) {
-				ImportRoutingData();
+				ImportRoutingDataFromCatalogue();
 			}
 
 			transport_catalogue::RouterData result;
-			// Проверяем наличие указанных остановок в базе роутера
+			// РџСЂРѕРІРµСЂСЏРµРј РЅР°Р»РёС‡РёРµ СѓРєР°Р·Р°РЅРЅС‹С… РѕСЃС‚Р°РЅРѕРІРѕРє РІ Р±Р°Р·Рµ СЂРѕСѓС‚РµСЂР°
 			if (_wait_points.count(from) && _move_points.count(to)) 
 			{
 				auto data = _router.get()->BuildRoute(
 					_wait_points.at(from), _move_points.at(to));
 
-				if (data.has_value()) // Если маршрут проложен
+				if (data.has_value()) // Р•СЃР»Рё РјР°СЂС€СЂСѓС‚ РїСЂРѕР»РѕР¶РµРЅ
 				{
 					result._is_founded = true;
 					for (auto& item_id : data.value().edges) {
@@ -100,12 +146,12 @@ namespace transport_catalogue {
 			return result;
 		}
 
-		// Загрзка информации, самый тяжелый блок обработки
-		TransportRouter& TransportRouter::ImportRoutingData() {
+		// Р—Р°РіСЂР·РєР° РёРЅС„РѕСЂРјР°С†РёРё, СЃР°РјС‹Р№ С‚СЏР¶РµР»С‹Р№ Р±Р»РѕРє РѕР±СЂР°Р±РѕС‚РєРё
+		TransportRouter& TransportRouter::ImportRoutingDataFromCatalogue() {
 			
 			size_t points_counter = 0;
-			// Загружаем данные по остановкам
-			for (const auto& stop : _catalogue.GetAllStopsData()) {
+			// Р—Р°РіСЂСѓР¶Р°РµРј РґР°РЅРЅС‹Рµ РїРѕ РѕСЃС‚Р°РЅРѕРІРєР°Рј
+			for (const auto& stop : _transport_catalogue.GetAllStopsData()) {
 
 				_wait_points.insert({ stop->_name, points_counter });
 				_move_points.insert({ stop->_name, ++points_counter });
@@ -120,23 +166,23 @@ namespace transport_catalogue {
 				++points_counter;
 			}
 
-			// Загружаем данные по маршрутам
-			// Необходимо загрузить абсолютно все варианты по всем перегонам между любыми остановками
-			for (const auto& bus : _catalogue.GetAllBusesData()) {
+			// Р—Р°РіСЂСѓР¶Р°РµРј РґР°РЅРЅС‹Рµ РїРѕ РјР°СЂС€СЂСѓС‚Р°Рј
+			// РќРµРѕР±С…РѕРґРёРјРѕ Р·Р°РіСЂСѓР·РёС‚СЊ Р°Р±СЃРѕР»СЋС‚РЅРѕ РІСЃРµ РІР°СЂРёР°РЅС‚С‹ РїРѕ РІСЃРµРј РїРµСЂРµРіРѕРЅР°Рј РјРµР¶РґСѓ Р»СЋР±С‹РјРё РѕСЃС‚Р°РЅРѕРІРєР°РјРё
+			for (const auto& bus : _transport_catalogue.GetAllBusesData()) {
 
-				// движемся по маршруту от первой остановки
+				// РґРІРёР¶РµРјСЃСЏ РїРѕ РјР°СЂС€СЂСѓС‚Сѓ РѕС‚ РїРµСЂРІРѕР№ РѕСЃС‚Р°РЅРѕРІРєРё
 				for (size_t from_stop_id = 0; from_stop_id != bus->_stops.size(); ++from_stop_id) {
 
 					int span_count = 0;
 
-					// до каждой из последующих остановок
+					// РґРѕ РєР°Р¶РґРѕР№ РёР· РїРѕСЃР»РµРґСѓСЋС‰РёС… РѕСЃС‚Р°РЅРѕРІРѕРє
 					for (size_t to_stop_id = from_stop_id + 1; to_stop_id != bus->_stops.size(); ++to_stop_id) {
 
 						double route_distance = 0.0;
 
-						// считаем расстояния по тем же точкам
+						// СЃС‡РёС‚Р°РµРј СЂР°СЃСЃС‚РѕСЏРЅРёСЏ РїРѕ С‚РµРј Р¶Рµ С‚РѕС‡РєР°Рј
 						for (size_t current_point = from_stop_id + 1; current_point <= to_stop_id; ++current_point) {
-							route_distance += static_cast<double>(_catalogue
+							route_distance += static_cast<double>(_transport_catalogue
 								.GetDistance(bus->_stops[current_point - 1], bus->_stops[current_point]));
 						}
 

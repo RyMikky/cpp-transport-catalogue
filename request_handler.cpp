@@ -1,4 +1,4 @@
-#include "request_handler.h"
+п»ї#include "request_handler.h"
 
 namespace transport_catalogue {
 
@@ -6,23 +6,23 @@ namespace transport_catalogue {
 
 		// ------------------------- class RequestHandler ------------------------
 
-		// загрузить сторонний каталог
+		// Р·Р°РіСЂСѓР·РёС‚СЊ СЃС‚РѕСЂРѕРЅРЅРёР№ РєР°С‚Р°Р»РѕРі
 		RequestHandler& RequestHandler::SetTransportCatalogue(transport_catalogue::TransportCatalogue&& catalogue) {
-			_catalogue = std::move(catalogue);
+			_transport_catalogue = std::move(catalogue);
 
-			// если роутер уже был сконфигурирован, то перезагружаем данные роутинга
+			// РµСЃР»Рё СЂРѕСѓС‚РµСЂ СѓР¶Рµ Р±С‹Р» СЃРєРѕРЅС„РёРіСѓСЂРёСЂРѕРІР°РЅ, С‚Рѕ РїРµСЂРµР·Р°РіСЂСѓР¶Р°РµРј РґР°РЅРЅС‹Рµ СЂРѕСѓС‚РёРЅРіР°
 			if (_transport_router) {
-				_transport_router.get()->ImportRoutingData();
+				_transport_router.get()->ImportRoutingDataFromCatalogue();
 			}
 
 			return *this;
 		}
 
-		// загрузить настройки рендера
+		// Р·Р°РіСЂСѓР·РёС‚СЊ РЅР°СЃС‚СЂРѕР№РєРё СЂРµРЅРґРµСЂР°
 		RequestHandler& RequestHandler::SetRedererSettings(map_renderer::RendererSettings&& settings) {
 			_renderer_settings = std::move(settings);
 
-			// если рендер уже был сконфигурирован, то перезагружаем настройки имеющегося рендера
+			// РµСЃР»Рё СЂРµРЅРґРµСЂ СѓР¶Рµ Р±С‹Р» СЃРєРѕРЅС„РёРіСѓСЂРёСЂРѕРІР°РЅ, С‚Рѕ РїРµСЂРµР·Р°РіСЂСѓР¶Р°РµРј РЅР°СЃС‚СЂРѕР№РєРё РёРјРµСЋС‰РµРіРѕСЃСЏ СЂРµРЅРґРµСЂР°
 			if (_map_renderer) {
 				_map_renderer.get()->SetRendererSettings(_renderer_settings);
 			}
@@ -30,11 +30,11 @@ namespace transport_catalogue {
 			return *this;
 		}
 
-		// загрузить настройки роутера
+		// Р·Р°РіСЂСѓР·РёС‚СЊ РЅР°СЃС‚СЂРѕР№РєРё СЂРѕСѓС‚РµСЂР°
 		RequestHandler& RequestHandler::SetRouterSettings(router::RouterSettings&& settings) {
 			_router_settings = std::move(settings);
 
-			// если роутер уже был сконфигурирован, то перезагружаем настройки имеющегося роутера
+			// РµСЃР»Рё СЂРѕСѓС‚РµСЂ СѓР¶Рµ Р±С‹Р» СЃРєРѕРЅС„РёРіСѓСЂРёСЂРѕРІР°РЅ, С‚Рѕ РїРµСЂРµР·Р°РіСЂСѓР¶Р°РµРј РЅР°СЃС‚СЂРѕР№РєРё РёРјРµСЋС‰РµРіРѕСЃСЏ СЂРѕСѓС‚РµСЂР°
 			if (_transport_router) {
 				_transport_router.get()->SetRouterSettings(_router_settings);
 			}
@@ -42,7 +42,33 @@ namespace transport_catalogue {
 			return *this;
 		}
 
-		// инициализация и первичная настройка рендера
+		// РїСЂРёРІРµСЃС‚Рё РјРѕРґСѓР»Рё Рє СЃРѕСЃС‚РѕСЏРЅРёСЋ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+		RequestHandler& RequestHandler::SetModulesToDefault() {
+
+			_transport_catalogue.ClearAllData();                // СѓРґР°Р»СЏРµРј РІСЃРµ РґР°РЅРЅС‹Рµ РєР°С‚Р°Р»РѕРіР°
+
+			if (_transport_router) {
+				_transport_router.reset();                      // СѓРґР°Р»СЏРµРј СѓР¶Рµ РЅР°СЃС‚СЂРѕРµРЅРЅС‹Р№ СЂРѕСѓС‚РµСЂ
+			}
+
+			if (_map_renderer) {
+				_map_renderer.reset();                          // СѓРґР°Р»СЏРµРј СѓР¶Рµ РЅР°СЃС‚СЂРѕРµРЅРЅС‹Р№ СЂРµРЅРґРµСЂ
+			}
+
+			if (_serializer) {
+				_serializer.reset();                            // СѓРґР°Р»СЏРµРј СѓР¶Рµ РЅР°СЃС‚СЂРѕРµРЅРЅС‹Р№ СЃРµСЂРёР°Р»Р°Р№Р·РµСЂ
+			}
+
+			return *this;
+		}
+
+		// СѓСЃС‚Р°РЅРѕРІРёС‚СЊ С„Р»Р°Рі СЃРѕСЃС‚РѕСЏРЅРёСЏ РґР°РЅРЅС‹С… РєР°С‚Р°Р»РѕРіР°
+		RequestHandler& RequestHandler::SetCatalogueDataStatus(transport_catalogue::CatalogueDataStatus status) {
+			_transport_catalogue.SetDataStatus(status);
+			return *this;
+		}
+
+		// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Рё РїРµСЂРІРёС‡РЅР°СЏ РЅР°СЃС‚СЂРѕР№РєР° СЂРµРЅРґРµСЂР°
 		RequestHandler& RequestHandler::EnableMapRenderer() {
 			if (!_map_renderer) {
 				_map_renderer = std::make_shared<map_renderer::MapRenderer>(_renderer_settings);
@@ -50,73 +76,94 @@ namespace transport_catalogue {
 			return *this;
 		}
 
-		// инициализация и первичная настройка роутера
+		// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Рё РїРµСЂРІРёС‡РЅР°СЏ РЅР°СЃС‚СЂРѕР№РєР° СЂРѕСѓС‚РµСЂР°
 		RequestHandler& RequestHandler::EnableTransportRouter() {
 			if (!_transport_router) {
-				_transport_router = std::make_shared<router::TransportRouter>(_catalogue, _router_settings);
+				_transport_router = std::make_shared<router::TransportRouter>(_transport_catalogue, _router_settings);
 			}
 			return *this;
 		}
 
-		// добавить остановку в каталог
+		// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Рё СЂР°СЃС‡С‘С‚ Р±Р°Р·С‹ РґР°РЅРЅС‹С… СЂРѕСѓС‚РµСЂР°
+		RequestHandler& RequestHandler::EnableRouterGraphs() {
+
+			if (!_transport_router) {
+				// РїСЂРѕРІРµСЂСЏРµРј С‚Рѕ, С‡С‚Рѕ СЂРѕСѓС‚РµСЂ СѓР¶Рµ Р°РєС‚РёРІРёСЂРѕРІР°РЅ
+				EnableTransportRouter();
+			}
+
+			// Р·Р°РіСЂСѓР¶Р°РµРј РґР°РЅРЅС‹Рµ СЂРѕСѓС‚РµСЂР° РґР»СЏ РїРѕСЃС‚СЂРѕРµРЅРёСЏ РіСЂР°С„РѕРІ
+			_transport_router->ImportRoutingDataFromCatalogue();
+			return *this;
+		}
+
+		// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РѕР±СЂР°Р±РѕС‚С‡РёРєР° СЃРµСЂРёР°Р»РёР·Р°С†РёРё
+		RequestHandler& RequestHandler::EnableSerializer() {
+			if (!_serializer) {
+				_serializer = std::make_shared<serial_handler::SerialHandler>(_transport_catalogue, _router_settings, _renderer_settings);
+			}
+			return *this;
+		}
+
+		// РґРѕР±Р°РІРёС‚СЊ РѕСЃС‚Р°РЅРѕРІРєСѓ РІ РєР°С‚Р°Р»РѕРі
 		RequestHandler& RequestHandler::AddStop(JsonRequestPtr request) {
-			_catalogue.AddStopsProcess(MakeStop(request));
+			_transport_catalogue.AddStop(MakeStop(request));
 			AddDistance(request);
 			return *this;
 		}
 
-		// добавить маршрут в каталог
+		// РґРѕР±Р°РІРёС‚СЊ РјР°СЂС€СЂСѓС‚ РІ РєР°С‚Р°Р»РѕРі
 		RequestHandler& RequestHandler::AddRoute(JsonRequestPtr request) {
-			_catalogue.AddRoute(std::move(MakeRoute(request)));
+			_transport_catalogue.AddRoute(std::move(MakeRoute(request)));
 			return *this;
 		}
 		
-		// добавить расстояние в каталог
+		// РґРѕР±Р°РІРёС‚СЊ СЂР°СЃСЃС‚РѕСЏРЅРёРµ РІ РєР°С‚Р°Р»РѕРі
 		RequestHandler& RequestHandler::AddDistance(JsonRequestPtr request) {
-			StopPtr this_stop_ = _catalogue.GetStopByName(request->_name);
+			StopPtr this_stop_ = _transport_catalogue.GetStopByName(request->_name);
 			for (auto& dist : request->_distances) {
-				_catalogue.AddDistance(this_stop_, _catalogue.GetStopByName(dist.first), dist.second);
+				_transport_catalogue.AddDistance(this_stop_, _transport_catalogue.GetStopByName(dist.first), dist.second);
 			}
 			return *this;
 		}
 
-		// выполнение блока запросов на добавление остановок
+		// РІС‹РїРѕР»РЅРµРЅРёРµ Р±Р»РѕРєР° Р·Р°РїСЂРѕСЃРѕРІ РЅР° РґРѕР±Р°РІР»РµРЅРёРµ РѕСЃС‚Р°РЅРѕРІРѕРє
 		RequestHandler& RequestHandler::AddStopsProcess(const std::deque<JsonRequestPtr>& requests) {
 			for (JsonRequestPtr request : requests) {
 
-				// создаём остановку в каталоге
-				_catalogue.AddStopsProcess(MakeStop(request));
+				// СЃРѕР·РґР°С‘Рј РѕСЃС‚Р°РЅРѕРІРєСѓ РІ РєР°С‚Р°Р»РѕРіРµ
+				_transport_catalogue.AddStop(MakeStop(request));
 
-				// заполняем временное хранилище запросов по дистанциям которое будет обработано после добавления всех остановок
+				// Р·Р°РїРѕР»РЅСЏРµРј РІСЂРµРјРµРЅРЅРѕРµ С…СЂР°РЅРёР»РёС‰Рµ Р·Р°РїСЂРѕСЃРѕРІ РїРѕ РґРёСЃС‚Р°РЅС†РёСЏРј РєРѕС‚РѕСЂРѕРµ Р±СѓРґРµС‚ РѕР±СЂР°Р±РѕС‚Р°РЅРѕ РїРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ РІСЃРµС… РѕСЃС‚Р°РЅРѕРІРѕРє
 				if (request->_distances.size() != 0) {
 					_current_distance_json_requests[request->_name] = &request->_distances;
 				}
 			}
 
-			// сразу же добавляем все дистанции
+			// СЃСЂР°Р·Сѓ Р¶Рµ РґРѕР±Р°РІР»СЏРµРј РІСЃРµ РґРёСЃС‚Р°РЅС†РёРё
 			AddDistancesProcess();
 			return *this;
 		}
 
-		// выполнение блока запросов на добавление маршрутов
+		// РІС‹РїРѕР»РЅРµРЅРёРµ Р±Р»РѕРєР° Р·Р°РїСЂРѕСЃРѕРІ РЅР° РґРѕР±Р°РІР»РµРЅРёРµ РјР°СЂС€СЂСѓС‚РѕРІ
 		RequestHandler& RequestHandler::AddRoutesProcess(const std::deque<JsonRequestPtr>& requests) {
 			for (JsonRequestPtr request : requests) {
-				_catalogue.AddRoute(std::move(MakeRoute(request)));
+				_transport_catalogue.AddRoute(std::move(MakeRoute(request)));
 			}
 			return *this;
 		}
 
-		// получить информацию по автобусу
+		// РїРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ РїРѕ Р°РІС‚РѕР±СѓСЃСѓ
 		RouteStatPtr RequestHandler::GetRouteInfo(JsonRequestPtr request) {
-			return _catalogue.GetRouteInfo(request->_name);
+			return _transport_catalogue.GetRouteInfo(request->_name);
 		}
 
-		// получить информацию по остановке
+		// РїРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ РїРѕ РѕСЃС‚Р°РЅРѕРІРєРµ
 		StopStatPtr RequestHandler::GetStopInfo(JsonRequestPtr request) {
-			return _catalogue.GetBusesForStopInfo(request->_name);
+			return _transport_catalogue.GetBusesForStopInfo(request->_name);
 		}
 
-		// получить информацию маршрутизатора
+		// РїРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ РјР°СЂС€СЂСѓС‚РёР·Р°С‚РѕСЂР°
 		RouterData RequestHandler::GetRouterData(JsonRequestPtr request) {
 			if (!_transport_router) {
 				EnableTransportRouter();
@@ -124,13 +171,13 @@ namespace transport_catalogue {
 			return _transport_router.get()->MakeRoute(request->_from, request->_to);
 		}
 
-		// получить карту маршрутов
+		// РїРѕР»СѓС‡РёС‚СЊ РєР°СЂС‚Сѓ РјР°СЂС€СЂСѓС‚РѕРІ
 		RendererData RequestHandler::GetRendererData(JsonRequestPtr request) {
 			if (!_map_renderer) {
 				EnableMapRenderer();
 			}
 
-			for (auto& route : _catalogue.GetDataToRenderer()) {
+			for (auto& route : _transport_catalogue.GetDataToRenderer()) {
 				_map_renderer.get()->AddRendererData(route);
 			}
 
@@ -138,36 +185,75 @@ namespace transport_catalogue {
 			return _map_renderer.get()->StructRendererProcess();
 		}
 
-		// создаёт маршрут на основе запроса
+		// РѕС‚РїСЂР°РІРёС‚СЊ РґР°РЅРЅС‹Рµ РІ РїРѕС‚РѕРє
+		bool RequestHandler::SerializeDataToOstream(std::ostream& output) {
+
+			if (!_serializer) {                                          // РµСЃР»Рё СЃРµСЂРёР°Р»Р°Р№Р·РµСЂ РЅРµ РІРєР»СЋС‡РµРЅ
+				EnableSerializer();                                      // Р°РєС‚РёРІРёСЂСѓРµРј РјРѕРґСѓР»СЊ СЃРµСЂРёР°Р»РёР·Р°С†РёРё
+			}
+
+			_serializer->GetDataFromCatalogue();                         // Р·Р°РіСЂСѓР¶Р°РµРј РґР°РЅРЅС‹Рµ РёР· РєР°С‚Р°Р»РѕРіР° Рё РіРѕС‚РѕРІРёРј Рє РѕС‚РїСЂР°РІРєРµ
+
+			if (_transport_router) {                                     // РµСЃР»Рё СЂРѕСѓС‚РµСЂ СѓР¶Рµ Р°РєС‚РёРІРёСЂРѕРІР°РЅ
+				_serializer->SetTransportRouter(_transport_router);      // РїРµСЂРµРґР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЂРѕСѓС‚РµСЂ РІ РјРѕРґСѓР»СЊ СЃРµСЂРёР°Р»РёР·Р°С†РёРё
+				_serializer->GetDataFromRouter();                        // Р·Р°РіСЂСѓР¶Р°РµРј РґР°РЅРЅС‹Рµ РёР· СЂРѕСѓС‚РµСЂР° Рё РіРѕС‚РѕРІРёРј Рє РѕС‚РїСЂР°РІРєРµ
+			}
+			return _serializer->UploadDataToOstream(output);          // РѕС‚РїСЂР°РІР»СЏРµРј РґР°РЅРЅС‹Рµ РІ РїРѕС‚РѕРє
+		}
+
+		// Р·Р°РіСЂСѓР·РёС‚СЊ РґР°РЅРЅС‹Рµ РёР· РїРѕС‚РѕРєР°
+		bool RequestHandler::DeserializeDataFromIstream(std::istream& input) {
+
+			if (!_serializer) {                                          // РµСЃР»Рё СЃРµСЂРёР°Р»Р°Р№Р·РµСЂ РЅРµ РІРєР»СЋС‡РµРЅ
+				EnableSerializer();                                      // Р°РєС‚РёРІРёСЂСѓРµРј РјРѕРґСѓР»СЊ СЃРµСЂРёР°Р»РёР·Р°С†РёРё
+			}
+
+			if (_serializer->DownloadDataFromIstream(input)) {        // РїРѕР»СѓС‡Р°Рј РґР°РЅРЅС‹Рµ РёР· РїРѕС‚РѕРєР°
+
+				_serializer->ApplyDataToCatalogue();                     // Р·Р°РіСЂСѓР¶Р°РµРј РґР°РЅРЅС‹Рµ РІ РєР°С‚Р°Р»РѕРі
+
+				if (_serializer->IsRouterDataIncomeFromOutside()) {      // РµСЃР»Рё РІ С‡РёСЃР»Рµ РїСЂРѕС‡РµРіРѕ Р·Р°РіСЂСѓР¶РµРЅРЅС‹ РґР°РЅРЅС‹Рµ СЂРµРЅРµРґРµСЂР°
+					EnableTransportRouter();                             // Р·Р°РїСѓСЃРєР°РµРј СЂРµРЅРґРµСЂ Р±РµР· Р·Р°РіСЂСѓР·РєРё РіСЂР°С„РѕРІ РёР· РєР°С‚Р°Р»РѕРіР°
+					_serializer->SetTransportRouter(_transport_router);  // РЅР° РІСЃСЏРєРёР№ РїРѕР¶Р°СЂРЅС‹Р№ РЅР°Р·РЅР°С‡Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЂРѕСѓС‚РµСЂ
+				}
+
+				_serializer->ApplyDataToRouter();                        // Р·Р°РіСЂСѓР¶Р°РµРј Р±Р°Р·Сѓ СЂРѕСѓС‚РµСЂР°
+
+				return true;
+			}
+
+			return false;
+		}
+
+		// СЃРѕР·РґР°С‘С‚ РјР°СЂС€СЂСѓС‚ РЅР° РѕСЃРЅРѕРІРµ Р·Р°РїСЂРѕСЃР°
 		Route RequestHandler::MakeRoute(JsonRequestPtr request) {
 			Route result;
 			result._is_circular = request->_is_circular;
 			result._route_name = request->_name;
 			for (auto stop : request->_stops) {
-				result._stops.push_back(_catalogue.GetStopByName(stop));
+				result._stops.push_back(_transport_catalogue.GetStopByName(stop));
 			}
 			return result;
 		}
 
-		// создаёт остановку на основе запроса
+		// СЃРѕР·РґР°С‘С‚ РѕСЃС‚Р°РЅРѕРІРєСѓ РЅР° РѕСЃРЅРѕРІРµ Р·Р°РїСЂРѕСЃР°
 		Stop RequestHandler::MakeStop(JsonRequestPtr request) {
 			return { std::string(request->_name), request->_coord.lat, request->_coord.lng };
 		}
 
-		// выполнение блока запросов на добавление дистанций из массива
+		// РІС‹РїРѕР»РЅРµРЅРёРµ Р±Р»РѕРєР° Р·Р°РїСЂРѕСЃРѕРІ РЅР° РґРѕР±Р°РІР»РµРЅРёРµ РґРёСЃС‚Р°РЅС†РёР№ РёР· РјР°СЃСЃРёРІР°
 		RequestHandler& RequestHandler::AddDistancesProcess() {
 			if (_current_distance_json_requests.size() != 0) {
 				for (auto this_stop : _current_distance_json_requests) {
-					StopPtr this_stop_ = _catalogue.GetStopByName(this_stop.first);
+					StopPtr this_stop_ = _transport_catalogue.GetStopByName(this_stop.first);
 					for (auto& dist : *this_stop.second) {
-						_catalogue.AddDistance(this_stop_, _catalogue.GetStopByName(dist.first), dist.second);
+						_transport_catalogue.AddDistance(this_stop_, _transport_catalogue.GetStopByName(dist.first), dist.second);
 					}
 				}
 			}
 			_current_distance_json_requests.clear();
 			return *this;
 		}
-
 
 		// ------------------------- class RequestHandler END ------------------------
 

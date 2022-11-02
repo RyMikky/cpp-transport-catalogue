@@ -1,4 +1,4 @@
-#include "json.h"
+п»ї#include "json.h"
 #include <sstream>
 
 using namespace std;
@@ -11,14 +11,14 @@ namespace json {
 
         using Number = std::variant<int, double>;
 
-        Node LoadNode(istream& input);    // предварительное объявление
+        Node LoadNode(istream& input);    // РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕРµ РѕР±СЉСЏРІР»РµРЅРёРµ
 
-        // парсер чисел в потоке
+        // РїР°СЂСЃРµСЂ С‡РёСЃРµР» РІ РїРѕС‚РѕРєРµ
         Number NumberParser(std::istream& input) {
 
             std::string parsed_num;
 
-            // Считывает в parsed_num очередной символ из input
+            // РЎС‡РёС‚С‹РІР°РµС‚ РІ parsed_num РѕС‡РµСЂРµРґРЅРѕР№ СЃРёРјРІРѕР» РёР· input
             auto read_char = [&parsed_num, &input] {
                 parsed_num += static_cast<char>(input.get());
                 if (!input) {
@@ -26,7 +26,7 @@ namespace json {
                 }
             };
 
-            // Считывает одну или более цифр в parsed_num из input
+            // РЎС‡РёС‚С‹РІР°РµС‚ РѕРґРЅСѓ РёР»Рё Р±РѕР»РµРµ С†РёС„СЂ РІ parsed_num РёР· input
             auto read_digits = [&input, read_char] {
                 if (!std::isdigit(input.peek())) {
                     throw ParsingError("A digit is expected"s);
@@ -39,24 +39,24 @@ namespace json {
             if (input.peek() == '-') {
                 read_char();
             }
-            // Парсим целую часть числа
+            // РџР°СЂСЃРёРј С†РµР»СѓСЋ С‡Р°СЃС‚СЊ С‡РёСЃР»Р°
             if (input.peek() == '0') {
                 read_char();
-                // После 0 в JSON не могут идти другие цифры
+                // РџРѕСЃР»Рµ 0 РІ JSON РЅРµ РјРѕРіСѓС‚ РёРґС‚Рё РґСЂСѓРіРёРµ С†РёС„СЂС‹
             }
             else {
                 read_digits();
             }
 
             bool is_int = true;
-            // Парсим дробную часть числа
+            // РџР°СЂСЃРёРј РґСЂРѕР±РЅСѓСЋ С‡Р°СЃС‚СЊ С‡РёСЃР»Р°
             if (input.peek() == '.') {
                 read_char();
                 read_digits();
                 is_int = false;
             }
 
-            // Парсим экспоненциальную часть числа
+            // РџР°СЂСЃРёРј СЌРєСЃРїРѕРЅРµРЅС†РёР°Р»СЊРЅСѓСЋ С‡Р°СЃС‚СЊ С‡РёСЃР»Р°
             if (int ch = input.peek(); ch == 'e' || ch == 'E') {
                 read_char();
                 if (ch = input.peek(); ch == '+' || ch == '-') {
@@ -68,13 +68,13 @@ namespace json {
 
             try {
                 if (is_int) {
-                    // Сначала пробуем преобразовать строку в int
+                    // РЎРЅР°С‡Р°Р»Р° РїСЂРѕР±СѓРµРј РїСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ СЃС‚СЂРѕРєСѓ РІ int
                     try {
                         return std::stoi(parsed_num);
                     }
                     catch (...) {
-                        // В случае неудачи, например, при переполнении,
-                        // код ниже попробует преобразовать строку в double
+                        // Р’ СЃР»СѓС‡Р°Рµ РЅРµСѓРґР°С‡Рё, РЅР°РїСЂРёРјРµСЂ, РїСЂРё РїРµСЂРµРїРѕР»РЅРµРЅРёРё,
+                        // РєРѕРґ РЅРёР¶Рµ РїРѕРїСЂРѕР±СѓРµС‚ РїСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ СЃС‚СЂРѕРєСѓ РІ double
                     }
                 }
                 return std::stod(parsed_num);
@@ -83,7 +83,7 @@ namespace json {
                 throw ParsingError("Failed to convert "s + parsed_num + " to number"s);
             }
         }
-        // литеральный парсер для корректной отработки булеанов и нуля
+        // Р»РёС‚РµСЂР°Р»СЊРЅС‹Р№ РїР°СЂСЃРµСЂ РґР»СЏ РєРѕСЂСЂРµРєС‚РЅРѕР№ РѕС‚СЂР°Р±РѕС‚РєРё Р±СѓР»РµР°РЅРѕРІ Рё РЅСѓР»СЏ
         std::string LiteralsParser(std::istream& input) {
             std::string result;
             while (std::isalpha(input.peek()))
@@ -92,7 +92,7 @@ namespace json {
             }
             return result;
         }
-        // литеральный парсер - парсер строк
+        // Р»РёС‚РµСЂР°Р»СЊРЅС‹Р№ РїР°СЂСЃРµСЂ - РїР°СЂСЃРµСЂ СЃС‚СЂРѕРє
         std::string StringParser(std::istream& input) {
             using namespace std::literals;
 
@@ -101,24 +101,24 @@ namespace json {
             std::string s;
             while (true) {
                 if (it == end) {
-                    // Поток закончился до того, как встретили закрывающую кавычку?
+                    // РџРѕС‚РѕРє Р·Р°РєРѕРЅС‡РёР»СЃСЏ РґРѕ С‚РѕРіРѕ, РєР°Рє РІСЃС‚СЂРµС‚РёР»Рё Р·Р°РєСЂС‹РІР°СЋС‰СѓСЋ РєР°РІС‹С‡РєСѓ?
                     throw ParsingError("String parsing error");
                 }
                 const char ch = *it;
                 if (ch == '"') {
-                    // Встретили закрывающую кавычку
+                    // Р’СЃС‚СЂРµС‚РёР»Рё Р·Р°РєСЂС‹РІР°СЋС‰СѓСЋ РєР°РІС‹С‡РєСѓ
                     ++it;
                     break;
                 }
                 else if (ch == '\\') {
-                    // Встретили начало escape-последовательности
+                    // Р’СЃС‚СЂРµС‚РёР»Рё РЅР°С‡Р°Р»Рѕ escape-РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё
                     ++it;
                     if (it == end) {
-                        // Поток завершился сразу после символа обратной косой черты
+                        // РџРѕС‚РѕРє Р·Р°РІРµСЂС€РёР»СЃСЏ СЃСЂР°Р·Сѓ РїРѕСЃР»Рµ СЃРёРјРІРѕР»Р° РѕР±СЂР°С‚РЅРѕР№ РєРѕСЃРѕР№ С‡РµСЂС‚С‹
                         throw ParsingError("String parsing error");
                     }
                     const char escaped_char = *(it);
-                    // Обрабатываем одну из последовательностей: \\, \n, \t, \r, \"
+                    // РћР±СЂР°Р±Р°С‚С‹РІР°РµРј РѕРґРЅСѓ РёР· РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚РµР№: \\, \n, \t, \r, \"
                     switch (escaped_char) {
                     case 'n':
                         s.push_back('\n');
@@ -136,16 +136,16 @@ namespace json {
                         s.push_back('\\');
                         break;
                     default:
-                        // Встретили неизвестную escape-последовательность
+                        // Р’СЃС‚СЂРµС‚РёР»Рё РЅРµРёР·РІРµСЃС‚РЅСѓСЋ escape-РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ
                         throw ParsingError("Unrecognized escape sequence \\"s + escaped_char);
                     }
                 }
                 else if (ch == '\n' || ch == '\r') {
-                    // Строковый литерал внутри- JSON не может прерываться символами \r или \n
+                    // РЎС‚СЂРѕРєРѕРІС‹Р№ Р»РёС‚РµСЂР°Р» РІРЅСѓС‚СЂРё- JSON РЅРµ РјРѕР¶РµС‚ РїСЂРµСЂС‹РІР°С‚СЊСЃСЏ СЃРёРјРІРѕР»Р°РјРё \r РёР»Рё \n
                     throw ParsingError("Unexpected end of line"s);
                 }
                 else {
-                    // Просто считываем очередной символ и помещаем его в результирующую строку
+                    // РџСЂРѕСЃС‚Рѕ СЃС‡РёС‚С‹РІР°РµРј РѕС‡РµСЂРµРґРЅРѕР№ СЃРёРјРІРѕР» Рё РїРѕРјРµС‰Р°РµРј РµРіРѕ РІ СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰СѓСЋ СЃС‚СЂРѕРєСѓ
                     s.push_back(ch);
                 }
                 ++it;
@@ -154,7 +154,7 @@ namespace json {
             return s;
         }
 
-        // загрузка Node согласно типа определенного в базовой функции LoadNode
+        // Р·Р°РіСЂСѓР·РєР° Node СЃРѕРіР»Р°СЃРЅРѕ С‚РёРїР° РѕРїСЂРµРґРµР»РµРЅРЅРѕРіРѕ РІ Р±Р°Р·РѕРІРѕР№ С„СѓРЅРєС†РёРё LoadNode
 
         Node LoadNull(istream& input) {
             std::string check = LiteralsParser(input);
@@ -286,7 +286,7 @@ namespace json {
         : variant(std::move(value)) {
     }
 
-    // --------- получение знаечний -------
+    // --------- РїРѕР»СѓС‡РµРЅРёРµ Р·РЅР°РµС‡РЅРёР№ -------
 
     const Value& Node::GetValue() const {
         return *this;
@@ -348,7 +348,7 @@ namespace json {
         return std::get<Dict>(*this);
     }
 
-    // --------- bool операции ------------
+    // --------- bool РѕРїРµСЂР°С†РёРё ------------
 
     bool Node::IsInt() const {
         return std::holds_alternative<int>(*this);
@@ -442,7 +442,7 @@ namespace json {
                 ctx._out << "\\n"sv;
                 break;
             case '"':
-                // Символы " и \ выводятся как \" или \\, соответственно
+                // РЎРёРјРІРѕР»С‹ " Рё \ РІС‹РІРѕРґСЏС‚СЃСЏ РєР°Рє \" РёР»Рё \\, СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ
                 [[fallthrough]];
             case '\\':
                 ctx._out.put('\\');
